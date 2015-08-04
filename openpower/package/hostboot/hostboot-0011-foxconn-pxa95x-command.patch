@@ -1,0 +1,24 @@
+--- open-power-hostboot-c646754/src/usr/hwpf/hwp/dram_training/palmetto_vddr.C.orig	2015-07-06 20:38:15.770474966 +0800
++++ open-power-hostboot-c646754/src/usr/hwpf/hwp/dram_training/palmetto_vddr.C	2015-07-06 20:40:08.719035047 +0800
+@@ -51,14 +51,18 @@
+ TRAC_INIT(&g_trac_vddr, "HB_VDDR",  KILOBYTE);
+ 
+ // PCA95X internal register addresses
++// Frank: workaround for foxconn bringup
+ enum
+ {
+     PCA95X_GPIO_REG_INPUT    = 0x0,
+-    PCA95X_GPIO_REG_OUTPUT   = 0x2,
+-    PCA95X_GPIO_REG_POLARITY = 0x4,
++    //PCA95X_GPIO_REG_OUTPUT   = 0x2,
++    //PCA95X_GPIO_REG_POLARITY = 0x4,
++    PCA95X_GPIO_REG_OUTPUT   = 0x1,
++    PCA95X_GPIO_REG_POLARITY = 0x2,
+     PCA95X_GPIO_POLARITY_NORMAL = 0,
+     PCA95X_GPIO_POLARITY_INVERTED = 1,
+-    PCA95X_GPIO_REG_CONFIG   = 0x6,
++    //PCA95X_GPIO_REG_CONFIG   = 0x6,
++    PCA95X_GPIO_REG_CONFIG   = 0x3,
+ };
+ 
+ #define    PCA95X_GPIO_CONFIG_OUTPUT false
