@@ -1,0 +1,25 @@
+From 72253396b44e5e8dd0ce6bbebaeb077f876d7bb4 Mon Sep 17 00:00:00 2001
+From: Jeremy Kerr <jk@ozlabs.org>
+Date: Sat, 4 Jul 2015 15:21:19 +0800
+Subject: [PATCH] libflash: Add support for Macronix 0xc22018 identifier
+
+Signed-off-by: Jeremy Kerr <jk@ozlabs.org>
+---
+ libflash/libflash.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libflash/libflash.c b/libflash/libflash.c
+index 55eafbe..b3c951c 100644
+--- a/libflash/libflash.c
++++ b/libflash/libflash.c
+@@ -28,6 +28,7 @@
+ 
+ static const struct flash_info flash_info[] = {
+ 	{ 0xc22019, 0x02000000, FL_ERASE_ALL | FL_CAN_4B, "Macronix MXxxL25635F"},
++	{ 0xc22018, 0x02000000, FL_ERASE_ALL | FL_CAN_4B, "Macronix MXxxL25635F"},
+ 	{ 0xc2201a, 0x04000000, FL_ERASE_ALL | FL_CAN_4B, "Macronix MXxxL51235F"},
+ 	{ 0xef4018, 0x01000000, FL_ERASE_ALL,             "Winbond W25Q128BV"   },
+ 	{ 0x20ba20, 0x04000000, FL_ERASE_4K  | FL_ERASE_64K | FL_CAN_4B |
+-- 
+1.9.1
+

@@ -4,8 +4,8 @@
 #
 ################################################################################
 
-SKIBOOT_VERSION = 07ce9e26db370aea57d9b9d64cefe76f064a493d
-SKIBOOT_SITE = $(call github,bogatseng,skiboot,$(SKIBOOT_VERSION))
+SKIBOOT_VERSION = skiboot-5.0.5
+SKIBOOT_SITE = $(call github,open-power,skiboot,$(SKIBOOT_VERSION))
 SKIBOOT_INSTALL_IMAGES = YES
 SKIBOOT_INSTALL_TARGET = NO
 
