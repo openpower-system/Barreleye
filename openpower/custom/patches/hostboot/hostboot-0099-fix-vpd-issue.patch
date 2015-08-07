@@ -1,0 +1,24 @@
+--- hostboot-3f6449495b5922c13c9b977b252f9638ccb8cf4c/src/usr/hwas/common/hwas.C.orig	2015-08-06 18:07:44.269977394 +0800
++++ hostboot-3f6449495b5922c13c9b977b252f9638ccb8cf4c/src/usr/hwas/common/hwas.C	2015-08-06 18:13:32.573983768 +0800
+@@ -116,6 +116,10 @@
+     i_target->setAttr<ATTR_HWAS_STATE>( hwasState );
+ }
+ 
++inline bool compareTargetHuid_high2low(TargetHandle_t t1, TargetHandle_t t2)
++{
++    return (t1->getAttr<ATTR_HUID>() > t2->getAttr<ATTR_HUID>());
++}
+ 
+ errlHndl_t discoverTargets()
+ {
+@@ -166,6 +170,10 @@
+         targetService().getAssociated( pCheckPres, pSys,
+             TargetService::CHILD, TargetService::ALL, &checkExpr );
+ 
++        // sort the list by ATTR_HUID high2low to hack fix vpd cache problem
++        std::sort(pCheckPres.begin(), pCheckPres.end(),
++             compareTargetHuid_high2low);
++
+         // pass this list to the hwas platform-specific api where
+         // pCheckPres will be modified to only have present targets
+         HWAS_DBG("pCheckPres size: %d", pCheckPres.size());
