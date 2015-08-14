@@ -1,0 +1,39 @@
+diff -Naur a/barreleye.xml b/barreleye.xml
+--- a/barreleye.xml	2015-08-13 14:25:21.866367169 +0800
++++ b/barreleye.xml	2015-08-13 15:13:04.250419556 +0800
+@@ -5823,7 +5823,7 @@
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>LANE_REVERSAL</id>
+-		<default>00</default>
++		<default>0</default>
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>PCIE_LANE_EQUALIZATION</id>
+@@ -5848,7 +5848,7 @@
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>LANE_REVERSAL</id>
+-		<default>00</default>
++		<default>1</default>
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>PCIE_LANE_EQUALIZATION</id>
+@@ -5898,7 +5898,7 @@
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>LANE_REVERSAL</id>
+-		<default>00</default>
++		<default>0</default>
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>PCIE_LANE_EQUALIZATION</id>
+@@ -5923,7 +5923,7 @@
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>LANE_REVERSAL</id>
+-		<default>00</default>
++		<default>1</default>
+ 		</bus_attribute>
+ 		<bus_attribute>
+ 			<id>PCIE_LANE_EQUALIZATION</id>
