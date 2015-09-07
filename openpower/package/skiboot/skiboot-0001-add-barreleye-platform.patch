@@ -1,7 +1,6 @@
-diff -urN open-power-skiboot-15564dd.orig/platforms/astbmc/barreleye.c open-power-skiboot-15564dd/platforms/astbmc/barreleye.c
---- open-power-skiboot-15564dd.orig/platforms/astbmc/barreleye.c	1970-01-01 08:00:00.000000000 +0800
-+++ open-power-skiboot-15564dd/platforms/astbmc/barreleye.c	2015-07-06 21:37:27.828088668 +0800
-@@ -0,0 +1,48 @@
+--- open-power-skiboot-3167239.orig/platforms/astbmc/barreleye.c	1970-01-01 08:00:00.000000000 +0800
++++ open-power-skiboot-3167239/platforms/astbmc/barreleye.c	2015-08-31 16:06:18.945794481 +0800
+@@ -0,0 +1,50 @@
 +/* Copyright 2013-2014 IBM Corp.
 + *
 + * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,30 +33,30 @@ diff -urN open-power-skiboot-15564dd.orig/platforms/astbmc/barreleye.c open-powe
 +
 +	/* Lot of common early inits here */
 +	astbmc_early_init();
++	prd_init();
 +
 +	return true;
 +}
 +
 +
 +DECLARE_PLATFORM(barreleye) = {
-+	.name			= "barreleye",
++	.name			= "Barreleye",
 +	.probe			= barreleye_probe,
 +	.init			= astbmc_init,
-+	.external_irq		= astbmc_ext_irq,
++	.external_irq		= astbmc_ext_irq_serirq_cpld,
 +	.cec_power_down         = astbmc_ipmi_power_down,
 +	.cec_reboot             = astbmc_ipmi_reboot,
 +	.elog_commit		= ipmi_elog_commit,
-+	.start_preload_resource	= flash_load_resource,
++	.start_preload_resource	= flash_start_preload_resource,
++	.resource_loaded	= flash_resource_loaded,
 +	.exit			= ipmi_wdt_final_reset,
 +};
-diff -urN open-power-skiboot-15564dd.orig/platforms/astbmc/Makefile.inc open-power-skiboot-15564dd/platforms/astbmc/Makefile.inc
---- open-power-skiboot-15564dd.orig/platforms/astbmc/Makefile.inc	2015-05-21 13:23:57.000000000 +0800
-+++ open-power-skiboot-15564dd/platforms/astbmc/Makefile.inc	2015-07-06 21:36:11.143708411 +0800
+--- open-power-skiboot-3167239/platforms/astbmc/Makefile.inc.orig       2015-08-31 15:18:24.717741878 +0800
++++ open-power-skiboot-3167239/platforms/astbmc/Makefile.inc    2015-08-31 15:20:11.993743841 +0800
 @@ -1,6 +1,6 @@
  SUBDIRS += $(PLATDIR)/astbmc
- 
--ASTBMC_OBJS = palmetto.o habanero.o firestone.o pnor.o common.o
-+ASTBMC_OBJS = palmetto.o habanero.o firestone.o barreleye.o pnor.o common.o
+
+-ASTBMC_OBJS = palmetto.o habanero.o firestone.o garrison.o pnor.o common.o
++ASTBMC_OBJS = palmetto.o habanero.o firestone.o garrison.o barreleye.o pnor.o common.o
  ASTBMC = $(PLATDIR)/astbmc/built-in.o
  $(ASTBMC): $(ASTBMC_OBJS:%=$(PLATDIR)/astbmc/%)
- 
