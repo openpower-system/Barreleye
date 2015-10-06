@@ -1,0 +1,43 @@
+--- hostboot-6ff3e00062b894a880937ce41f748e26105b579a/src/usr/hwpf/hwp/sbe_centaur_init/sbe_centaur_init.C.orig	2015-09-24 16:45:20.250796460 +0800
++++ hostboot-6ff3e00062b894a880937ce41f748e26105b579a/src/usr/hwpf/hwp/sbe_centaur_init/sbe_centaur_init.C	2015-09-24 16:48:05.726799489 +0800
+@@ -55,6 +55,7 @@
+ #include <errl/errludtarget.H>
+ #include <sbe/sbeif.H>
+ #include "cen_xip_customize.H"
++#include <util/align.H>
+ 
+ extern fapi::ReturnCode fapiPoreVe(const fapi::Target i_target,
+            std::list<uint64_t> & io_sharedObjectArgs);
+@@ -66,7 +67,7 @@
+ const uint64_t CENTAUR_SBE_PNOR_MRR = 0;
+ 
+ // Max SBE image buffer size
+-const uint32_t MAX_SBE_IMG_SIZE = 48 * 1024; 
++const uint32_t MAX_SBE_IMG_SIZE = 48 * 1024;
+ 
+ namespace   SBE_CENTAUR_INIT
+ {
+@@ -168,9 +169,9 @@
+                      (const_cast<TARGETING::Target*>(l_membuf_target)));
+ 
+         // Expand buffer for new image size
+-        const uint32_t l_customizedMaxSize = MAX_SBE_IMG_SIZE;
+-        const uint32_t l_buf1Size = MAX_SBE_IMG_SIZE;
+-        const uint32_t l_buf2Size = MAX_SBE_IMG_SIZE;
++        const uint32_t l_customizedMaxSize = ALIGN_POW2(MAX_SBE_IMG_SIZE);
++        const uint32_t l_buf1Size = ALIGN_POW2(MAX_SBE_IMG_SIZE);
++        const uint32_t l_buf2Size = ALIGN_POW2(MAX_SBE_IMG_SIZE);
+ 
+         uint32_t l_customizedSize = l_customizedMaxSize;
+         char * l_pCustomizedImage = (char *)malloc(l_customizedMaxSize);
+--- hostboot-6ff3e00062b894a880937ce41f748e26105b579a/src/include/util/align.H.orig     2015-09-24 16:53:36.494805542 +0800
++++ hostboot-6ff3e00062b894a880937ce41f748e26105b579a/src/include/util/align.H  2015-09-24 16:55:22.930807490 +0800
+@@ -51,4 +51,7 @@
+ #define ALIGN_MEGABYTE(u)       (ALIGN_X(u,MEGABYTE))
+ #define ALIGN_MEGABYTE_DOWN(u)  (ALIGN_DOWN_X(u,MEGABYTE))
+
++// Return a number rounded to the next power of two.
++#define ALIGN_POW2(u)           ((u&(u-1)) ? 1 << (64 - __builtin_clzl(u)) : u)
++
+ #endif
+
