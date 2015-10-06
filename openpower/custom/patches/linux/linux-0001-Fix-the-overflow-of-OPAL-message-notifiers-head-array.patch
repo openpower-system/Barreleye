@@ -1,0 +1,31 @@
+--- linux-8adc30a30b88c793c2058e85426f4f94158797ad/arch/powerpc/platforms/powernv/opal.c.orig	2015-09-30 13:54:58.216096903 +0800
++++ linux-8adc30a30b88c793c2058e85426f4f94158797ad/arch/powerpc/platforms/powernv/opal.c	2015-09-30 13:50:17.108091758 +0800
+@@ -287,16 +287,12 @@
+ int opal_message_notifier_register(enum OpalMessageType msg_type,
+ 					struct notifier_block *nb)
+ {
+-	if (!nb) {
+-		pr_warning("%s: Invalid argument (%p)\n",
+-			   __func__, nb);
+-		return -EINVAL;
+-	}
+-	if (msg_type > OPAL_MSG_TYPE_MAX) {
+-		pr_warning("%s: Invalid message type argument (%d)\n",
++	if (!nb || msg_type >= OPAL_MSG_TYPE_MAX) {
++		pr_warning("%s: Invalid arguments, msg_type:%d\n",
+ 			   __func__, msg_type);
+ 		return -EINVAL;
+ 	}
++
+ 	return atomic_notifier_chain_register(
+ 				&opal_msg_notifier_head[msg_type], nb);
+ }
+@@ -340,7 +336,7 @@
+ 	type = be32_to_cpu(msg.msg_type);
+ 
+ 	/* Sanity check */
+-	if (type > OPAL_MSG_TYPE_MAX) {
++	if (type >= OPAL_MSG_TYPE_MAX) {
+ 		pr_warning("%s: Unknown message type: %u\n", __func__, type);
+ 		return;
+ 	}

@@ -1,0 +1,11 @@
+--- skiboot-skiboot-5.1.1/platforms/astbmc/common.c.orig	2015-09-30 15:17:10.232187166 +0800
++++ skiboot-skiboot-5.1.1/platforms/astbmc/common.c	2015-09-30 15:17:29.396187517 +0800
+@@ -114,7 +114,7 @@
+ 	pnor_init();
+ 
+ 	/* Register the BT interface with the IPMI layer */
+-	bt_init();
++	//bt_init();
+ 	ipmi_wdt_init();
+ 	ipmi_rtc_init();
+ 	ipmi_opal_init();
