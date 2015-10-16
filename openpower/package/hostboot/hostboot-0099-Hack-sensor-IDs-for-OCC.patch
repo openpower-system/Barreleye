@@ -1,0 +1,32 @@
+From 0b5866aef508287c61e439797474810bd871942b Mon Sep 17 00:00:00 2001
+From: Johnny <jonnyhihi@gmail.com>
+Date: Fri, 16 Oct 2015 10:29:51 +0800
+Subject: [PATCH] Hack sensor IDs for OCC
+
+---
+ src/usr/targeting/targplatutil.C | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/usr/targeting/targplatutil.C b/src/usr/targeting/targplatutil.C
+index a1b4834..572a9c2 100644
+--- a/src/usr/targeting/targplatutil.C
++++ b/src/usr/targeting/targplatutil.C
+@@ -122,7 +122,14 @@ uint32_t getSensorNumber( const TARGETING::Target* i_pTarget,
+ #else
+     // pass back the HUID - this will be the sensor number for non ipmi based
+     // systems
+-    return get_huid( i_pTarget );
++    uint32_t temp_huid = 0;
++    uint32_t return_huid = 0;
++
++    temp_huid = get_huid( i_pTarget );
++    return_huid = ( temp_huid >> 4 ) & 0x0000F000;
++    return_huid = return_huid | ( temp_huid & 0x00000FFF);
++
++    return return_huid;
+ 
+ #endif
+ 
+-- 
+1.9.1
+
