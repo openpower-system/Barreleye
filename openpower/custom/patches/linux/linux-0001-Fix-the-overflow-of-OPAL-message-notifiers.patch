@@ -1,0 +1,24 @@
+From de1383f56f80cf81eaab37e81e17a90bf6796fe7 Mon Sep 17 00:00:00 2001
+From: Johnny <jonnyhihi@gmail.com>
+Date: Mon, 19 Oct 2015 15:53:25 +0800
+Subject: [PATCH] Fix the overflow of OPAL message notifiers
+
+---
+ arch/powerpc/include/asm/opal-api.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/powerpc/include/asm/opal-api.h b/arch/powerpc/include/asm/opal-api.h
+index e9e4c52..ff77aab 100644
+--- a/arch/powerpc/include/asm/opal-api.h
++++ b/arch/powerpc/include/asm/opal-api.h
+@@ -361,6 +361,7 @@ enum opal_msg_type {
+ 	OPAL_MSG_HMI_EVT,
+ 	OPAL_MSG_DPO,
+ 	OPAL_MSG_PRD,
++	OAPL_MSG_OCC,
+ 	OPAL_MSG_TYPE_MAX,
+ };
+ 
+-- 
+1.9.1
+
