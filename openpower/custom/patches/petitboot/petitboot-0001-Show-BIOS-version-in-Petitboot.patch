@@ -1,0 +1,33 @@
+From dcb672ff6a51725607d898fab1593d63025dbd8e Mon Sep 17 00:00:00 2001
+From: Johnny <jonnyhihi@gmail.com>
+Date: Thu, 29 Oct 2015 00:27:32 +0800
+Subject: [PATCH] Show BIOS version in Petitboot
+
+---
+ version.sh | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/version.sh b/version.sh
+index f3e6268..b34d688 100755
+--- a/version.sh
++++ b/version.sh
+@@ -2,6 +2,7 @@
+ #
+ # version.sh: create a version string for use by configure.ac
+ 
++BIOS_VERSION="0.1.3"
+ version=
+ datefmt='%Y%m%d'
+ 
+@@ -27,7 +28,7 @@ if head=$(git rev-parse --short=8 --verify HEAD 2>/dev/null); then
+ 	fi
+ else
+ 	# Default to current date and time.
+-	version="$(date +dev.$datefmt)"
++	version="BIOS Version: "${BIOS_VERSION}
+ fi
+ 
+ echo $version
+-- 
+1.9.1
+
