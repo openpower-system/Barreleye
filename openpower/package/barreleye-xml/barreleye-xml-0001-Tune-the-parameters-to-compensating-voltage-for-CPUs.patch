@@ -1,0 +1,44 @@
+From e35e7cbfb5e07d3be12b27074444b3886e8ae385 Mon Sep 17 00:00:00 2001
+From: Johnny <jonnyhihi@gmail.com>
+Date: Mon, 26 Oct 2015 09:49:42 +0800
+Subject: [PATCH 1/2] Tune the parameters to compensating voltage for CPUs
+
+PROC_R_DISTLOSS_VCS     0 -> 0x001
+PROC_R_DISTLOSS_VDD     0 -> 0x001
+PROC_R_LOADLINE_VCS     0 -> 0x226
+PROC_R_LOADLINE_VDD     0 -> 0x1c2
+---
+ barreleye.xml | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/barreleye.xml b/barreleye.xml
+index 023fe02..81693e7 100644
+--- a/barreleye.xml
++++ b/barreleye.xml
+@@ -8377,19 +8377,19 @@
+ 	</attribute>
+ 	<attribute>
+ 		<id>PROC_R_DISTLOSS_VCS</id>
+-		<default></default>
++		<default>0x001</default>
+ 	</attribute>
+ 	<attribute>
+ 		<id>PROC_R_DISTLOSS_VDD</id>
+-		<default></default>
++		<default>0x001</default>
+ 	</attribute>
+ 	<attribute>
+ 		<id>PROC_R_LOADLINE_VCS</id>
+-		<default></default>
++		<default>0x226</default>
+ 	</attribute>
+ 	<attribute>
+ 		<id>PROC_R_LOADLINE_VDD</id>
+-		<default></default>
++		<default>0x1c2</default>
+ 	</attribute>
+ 	<attribute>
+ 		<id>PROC_VRM_VOFFSET_VCS</id>
+-- 
+1.9.1
+
