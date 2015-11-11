@@ -1,9 +1,0 @@
---- hostboot-6ff3e00062b894a880937ce41f748e26105b579a/src/usr/htmgt/HBconfig.orig	2015-09-09 14:31:39.539921821 +0800
-+++ hostboot-6ff3e00062b894a880937ce41f748e26105b579a/src/usr/htmgt/HBconfig	2015-09-09 14:31:51.367922038 +0800
-@@ -1,6 +1,5 @@
- config HTMGT
-     default n
--    depends on BMC_IPMI #TODO RTC: 124370
-     help
-         Enable Host TMGT in hostboot/HBRT
- 
