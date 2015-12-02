@@ -1,0 +1,49 @@
+From 0a6d4245691173eb953c440b8c6fc0b1688e6b25 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Thu, 2 Jul 2015 13:24:44 +0200
+Subject: [PATCH] mlx4: TCP/UDP packets have L4 hash
+
+Mellanox driver has the knowledge if rxhash is a L4 hash,
+if it receives a non fragmented TCP or UDP frame and
+NETIF_F_RXCSUM is enabled on netdev.
+
+ip_summed value is CHECKSUM_UNNECESSARY in this case.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Amir Vadai <amirv@mellanox.com>
+Cc: Ido Shamay <idos@mellanox.com>
+Acked-by: Ido Shamay <idos@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+---
+ drivers/net/ethernet/mellanox/mlx4/en_rx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/ethernet/mellanox/mlx4/en_rx.c b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
+index 7a4f20b..12c65e1 100644
+--- a/drivers/net/ethernet/mellanox/mlx4/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_rx.c
+@@ -917,7 +917,9 @@ int mlx4_en_process_rx_cq(struct net_device *dev, struct mlx4_en_cq *cq, int bud
+ 			if (dev->features & NETIF_F_RXHASH)
+ 				skb_set_hash(gro_skb,
+ 					     be32_to_cpu(cqe->immed_rss_invalid),
+-					     PKT_HASH_TYPE_L3);
++					     (ip_summed == CHECKSUM_UNNECESSARY) ?
++						PKT_HASH_TYPE_L4 :
++						PKT_HASH_TYPE_L3);
+ 
+ 			skb_record_rx_queue(gro_skb, cq->ring);
+ 			skb_mark_napi_id(gro_skb, &cq->napi);
+@@ -963,7 +965,9 @@ int mlx4_en_process_rx_cq(struct net_device *dev, struct mlx4_en_cq *cq, int bud
+ 		if (dev->features & NETIF_F_RXHASH)
+ 			skb_set_hash(skb,
+ 				     be32_to_cpu(cqe->immed_rss_invalid),
+-				     PKT_HASH_TYPE_L3);
++				     (ip_summed == CHECKSUM_UNNECESSARY) ?
++					PKT_HASH_TYPE_L4 :
++					PKT_HASH_TYPE_L3);
+ 
+ 		if ((be32_to_cpu(cqe->vlan_my_qpn) &
+ 		    MLX4_CQE_VLAN_PRESENT_MASK) &&
+-- 
+2.6.2.windows.1
+
