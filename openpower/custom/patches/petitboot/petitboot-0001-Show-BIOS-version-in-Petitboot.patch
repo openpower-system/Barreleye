@@ -15,7 +15,7 @@ index f3e6268..b34d688 100755
  #
  # version.sh: create a version string for use by configure.ac
  
-+BIOS_VERSION="0.1.4"
++BIOS_VERSION="0.1.5"
  version=
  datefmt='%Y%m%d'
  
