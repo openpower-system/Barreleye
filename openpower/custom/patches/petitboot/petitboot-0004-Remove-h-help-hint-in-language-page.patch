@@ -1,0 +1,28 @@
+From 2daf14a311ada9bfbb8d79db09ed4da815e8baf3 Mon Sep 17 00:00:00 2001
+From: Johnny <jonnyhihi@gmail.com>
+Date: Tue, 29 Dec 2015 10:29:03 +0800
+Subject: [PATCH] Remove "h=help" hint in language page
+
+---
+ ui/ncurses/nc-lang.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+ mode change 100644 => 100755 ui/ncurses/nc-lang.c
+
+diff --git a/ui/ncurses/nc-lang.c b/ui/ncurses/nc-lang.c
+old mode 100644
+new mode 100755
+index 3d86659..7879c45
+--- a/ui/ncurses/nc-lang.c
++++ b/ui/ncurses/nc-lang.c
+@@ -384,7 +384,7 @@ struct lang_screen *lang_screen_init(struct cui *cui,
+ 			_("Petitboot Language Selection"));
+ 	screen->scr.frame.rtitle = NULL;
+ 	screen->scr.frame.help = talloc_strdup(screen,
+-			_("tab=next, shift+tab=previous, x=exit, h=help"));
++			_("tab=next, shift+tab=previous, x=exit"));
+ 	nc_scr_frame_draw(&screen->scr);
+ 
+ 	scrollok(screen->scr.sub_ncw, true);
+-- 
+1.9.1
+
