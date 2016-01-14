@@ -15,7 +15,7 @@ index f3e6268..b34d688 100755
  #
  # version.sh: create a version string for use by configure.ac
  
-+BIOS_VERSION="0.1.5"
++BIOS_LABEL="BIOS Version: 0.2.0"
  version=
  datefmt='%Y%m%d'
  
@@ -24,7 +24,7 @@ index f3e6268..b34d688 100755
  else
  	# Default to current date and time.
 -	version="$(date +dev.$datefmt)"
-+	version="BIOS Version: "${BIOS_VERSION}
++	version=${BIOS_LABEL}
  fi
  
  echo $version
