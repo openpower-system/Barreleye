@@ -126,7 +126,7 @@ index 0000000..e20c903
 +	{
 +		.etype = st_pluggable_slot,
 +		.location = ST_LOC_DEVFN(0,0),
-+		.name = "Slot2",
++		.name = "Slot3",
 +	},
 +	{ .etype = st_end },
 +};
@@ -135,7 +135,7 @@ index 0000000..e20c903
 +	{
 +		.etype = st_pluggable_slot,
 +		.location = ST_LOC_DEVFN(0,0),
-+		.name = "Slot3",
++		.name = "Slot2",
 +	},
 +	{ .etype = st_end },
 +};
