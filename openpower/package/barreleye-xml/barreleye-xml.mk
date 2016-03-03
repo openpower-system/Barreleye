@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-BARRELEYE_XML_VERSION = fd8e8c89bb459051ee76ca6a75224b0ba1c3d67d
+BARRELEYE_XML_VERSION = 67b65a0ae0559659a3b9f6ca741d78293a1a51e8
 BARRELEYE_XML_SITE = $(call github,bogatseng,barreleye-xml,$(BARRELEYE_XML_VERSION))
 
 BARRELEYE_XML_LICENSE = Apache-2.0
