@@ -1,8 +1,9 @@
-From c294af604e87d365923bbc53b41ce6e13551b46f Mon Sep 17 00:00:00 2001
-From: Johnny <jonnyhihi@gmail.com>
-Date: Tue, 20 Oct 2015 13:11:47 +0800
-Subject: [PATCH] add barreleye platform
+From 9e33ef73dfed69a8cd4c81ff2dd74afd85855937 Mon Sep 17 00:00:00 2001
+From: Johnny <johnny.cl.chang@foxconn.com>
+Date: Thu, 3 Mar 2016 14:56:55 +0800
+Subject: [PATCH] Add Barreleye platform
 
+Signed-off-by: Johnny <johnny.cl.chang@foxconn.com>
 ---
  platforms/astbmc/Makefile.inc |   2 +-
  platforms/astbmc/barreleye.c  | 174 ++++++++++++++++++++++++++++++++++++++++++
@@ -23,11 +24,11 @@ index 8c749e8..46befc1 100644
  
 diff --git a/platforms/astbmc/barreleye.c b/platforms/astbmc/barreleye.c
 new file mode 100644
-index 0000000..e20c903
+index 0000000..d3a93c3
 --- /dev/null
 +++ b/platforms/astbmc/barreleye.c
 @@ -0,0 +1,174 @@
-+/* Copyright 2013-2014 IBM Corp.
++/* Copyright 2016 Ingrasys.
 + *
 + * Licensed under the Apache License, Version 2.0 (the "License");
 + * you may not use this file except in compliance with the License.
@@ -176,7 +177,7 @@ index 0000000..e20c903
 +
 +static bool barreleye_probe(void)
 +{
-+	if (!dt_node_is_compatible(dt_root, "foxconn,barreleye"))
++	if (!dt_node_is_compatible(dt_root, "ingrasys,barreleye"))
 +		return false;
 +
 +	/* Lot of common early inits here */
