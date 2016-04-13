@@ -1,0 +1,76 @@
+From c783b9ff36348813d75886f81ddedd2f0f838432 Mon Sep 17 00:00:00 2001
+From: Johnny <johnny.cl.chang@foxconn.com>
+Date: Wed, 30 Mar 2016 11:33:55 +0800
+Subject: [PATCH 5/5] Disable hotkey L in VGA
+
+---
+ ui/ncurses/nc-cui.c  | 10 ++++++++--
+ ui/ncurses/nc-menu.c | 18 +++++++++++++++++-
+ 2 files changed, 25 insertions(+), 3 deletions(-)
+ mode change 100644 => 100755 ui/ncurses/nc-cui.c
+ mode change 100644 => 100755 ui/ncurses/nc-menu.c
+
+diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
+old mode 100644
+new mode 100755
+index c744d78..ce6e636
+--- a/ui/ncurses/nc-cui.c
++++ b/ui/ncurses/nc-cui.c
+@@ -845,8 +845,14 @@ static struct pmenu *main_menu_init(struct cui *cui)
+ 	m->scr.frame.ltitle = talloc_asprintf(m,
+ 		"Petitboot (" PACKAGE_VERSION ")");
+ 	m->scr.frame.rtitle = NULL;
+-	m->scr.frame.help = talloc_strdup(m,
+-		_("Enter=accept, e=edit, n=new, x=exit, l=language, h=help"));
++	/* disable multi-lanauags feature if tty is fbcon(VGA) */
++	if( !is_fbcon() ){
++		m->scr.frame.help = talloc_strdup(m,
++			_("Enter=accept, e=edit, n=new, x=exit, l=language, h=help"));
++	}else{
++		m->scr.frame.help = talloc_strdup(m,
++			_("Enter=accept, e=edit, n=new, x=exit, h=help"));
++	}	
+ 	m->scr.frame.status = talloc_strdup(m, _("Welcome to Petitboot"));
+ 
+ 	/* add a separator */
+diff --git a/ui/ncurses/nc-menu.c b/ui/ncurses/nc-menu.c
+old mode 100644
+new mode 100755
+index dda7626..4797d11
+--- a/ui/ncurses/nc-menu.c
++++ b/ui/ncurses/nc-menu.c
+@@ -344,6 +344,21 @@ static void pmenu_move_cursor(struct pmenu *menu, int req)
+ }
+ 
+ /**
++ * Check if current tty is fbcon (VGA) tty
++ */
++static bool is_fbcon(void)
++{
++	char *tty;
++	tty = ttyname(STDIN_FILENO);
++
++	// VGA cosole ttyname is /dev/tty?
++	if (tty && !strncmp(tty, "/dev/tty", 8))
++		return 1;
++	else
++		return 0;
++}
++
++/**
+  * pmenu_process_key - Process a user keystroke.
+  */
+ 
+@@ -410,7 +425,8 @@ static void pmenu_process_key(struct nc_scr *scr, int key)
+ 		cui_show_config(cui_from_arg(scr->ui_ctx));
+ 		break;
+ 	case 'l':
+-		cui_show_lang(cui_from_arg(scr->ui_ctx));
++		if( !is_fbcon() )
++			cui_show_lang(cui_from_arg(scr->ui_ctx));
+ 		break;
+ 	case KEY_F(1):
+ 	case 'h':
+-- 
+1.9.1
+
