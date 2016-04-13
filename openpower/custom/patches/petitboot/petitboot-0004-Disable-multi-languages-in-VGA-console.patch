@@ -1,7 +1,7 @@
-From 219aadb9b234b1a71c0d8c4897b150afadeb1201 Mon Sep 17 00:00:00 2001
+From 110d1c35608c987eada93a3b75914c4ca451658a Mon Sep 17 00:00:00 2001
 From: alvinwang <alvinwang@msn.com>
 Date: Fri, 25 Dec 2015 04:19:31 -0600
-Subject: [PATCH] Disable multi-languages in VGA console
+Subject: [PATCH 4/5] Disable multi-languages in VGA console
 
 ---
  ui/ncurses/nc-cui.c | 52 +++++++++++++++++++++++++++++++++++++++-------------
@@ -101,5 +101,5 @@ index c975c0f..c744d78 100644
  	result = pmenu_setup(m);
  
 -- 
-2.6.2.windows.1
+1.9.1
 

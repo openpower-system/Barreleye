@@ -1,14 +1,14 @@
-From dcb672ff6a51725607d898fab1593d63025dbd8e Mon Sep 17 00:00:00 2001
-From: Johnny <jonnyhihi@gmail.com>
-Date: Thu, 29 Oct 2015 00:27:32 +0800
-Subject: [PATCH] Show BIOS version in Petitboot
+From 594d1c357133df179f38b601f4668743f760f1df Mon Sep 17 00:00:00 2001
+From: Johnny <johnny.cl.chang@foxconn.com>
+Date: Wed, 30 Mar 2016 09:26:13 +0800
+Subject: [PATCH 1/5] Show BIOS version in Petitboot
 
 ---
  version.sh | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/version.sh b/version.sh
-index f3e6268..b34d688 100755
+index f3e6268..1b26b52 100755
 --- a/version.sh
 +++ b/version.sh
 @@ -2,6 +2,7 @@

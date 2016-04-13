@@ -1,7 +1,7 @@
-From 9af8889cdd512c7c128a9cbbc93be656b95967ba Mon Sep 17 00:00:00 2001
-From: Johnny <jonnyhihi@gmail.com>
-Date: Mon, 28 Dec 2015 16:14:23 +0800
-Subject: [PATCH] Disable hotkey L in VGA
+From c783b9ff36348813d75886f81ddedd2f0f838432 Mon Sep 17 00:00:00 2001
+From: Johnny <johnny.cl.chang@foxconn.com>
+Date: Wed, 30 Mar 2016 11:33:55 +0800
+Subject: [PATCH 5/5] Disable hotkey L in VGA
 
 ---
  ui/ncurses/nc-cui.c  | 10 ++++++++--
@@ -36,10 +36,10 @@ index c744d78..ce6e636
 diff --git a/ui/ncurses/nc-menu.c b/ui/ncurses/nc-menu.c
 old mode 100644
 new mode 100755
-index 3f09d62..79913bc
+index dda7626..4797d11
 --- a/ui/ncurses/nc-menu.c
 +++ b/ui/ncurses/nc-menu.c
-@@ -343,6 +343,21 @@ static void pmenu_move_cursor(struct pmenu *menu, int req)
+@@ -344,6 +344,21 @@ static void pmenu_move_cursor(struct pmenu *menu, int req)
  }
  
  /**
@@ -61,7 +61,7 @@ index 3f09d62..79913bc
   * pmenu_process_key - Process a user keystroke.
   */
  
-@@ -409,7 +424,8 @@ static void pmenu_process_key(struct nc_scr *scr, int key)
+@@ -410,7 +425,8 @@ static void pmenu_process_key(struct nc_scr *scr, int key)
  		cui_show_config(cui_from_arg(scr->ui_ctx));
  		break;
  	case 'l':
