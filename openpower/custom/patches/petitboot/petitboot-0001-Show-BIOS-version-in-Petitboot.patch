@@ -15,7 +15,7 @@ index f3e6268..1b26b52 100755
  #
  # version.sh: create a version string for use by configure.ac
  
-+BIOS_LABEL="BIOS Version: 0.2.1"
++BIOS_LABEL="BIOS Version: 0.2.2"
  version=
  datefmt='%Y%m%d'
  
