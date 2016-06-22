@@ -1,9 +1,9 @@
-From 194487895174c8e33c46fbc6ba375bd9d5a7d6e3 Mon Sep 17 00:00:00 2001
+From cf8909aefb66f33390d87568ea2bd493002bd352 Mon Sep 17 00:00:00 2001
 From: Johnny <johnny.cl.chang@foxconn.com>
 Date: Thu, 31 Mar 2016 09:51:42 +0800
-Subject: [PATCH] Custom configuration for RAX.     - Change Auto-boot time
- from: "10 seconds" TO: 30 seconds     - Make sure auto-boot preference is set
- to : "Boot from Any Device"
+Subject: [PATCH 4/5] Custom configuration for RAX. - Change Auto-boot time
+ from: "10 seconds" TO: 30 seconds - Make sure auto-boot preference is set to
+ : "Boot from Any Device"
 
 ---
  discover/platform.c | 6 +++---
