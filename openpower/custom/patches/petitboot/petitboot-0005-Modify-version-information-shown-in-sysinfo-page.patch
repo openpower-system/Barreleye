@@ -1,0 +1,57 @@
+From 6a169aed25491a3da1cabc17a0d2dd6a76744479 Mon Sep 17 00:00:00 2001
+From: Johnny Chang <johnny.cl.chang@foxconn.com>
+Date: Wed, 22 Jun 2016 20:28:09 +0800
+Subject: [PATCH] Modify version information shown in sysinfo page
+
+---
+ ui/ncurses/nc-sysinfo.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
+
+diff --git a/ui/ncurses/nc-sysinfo.c b/ui/ncurses/nc-sysinfo.c
+index ce8957c..e192cac 100644
+--- a/ui/ncurses/nc-sysinfo.c
++++ b/ui/ncurses/nc-sysinfo.c
+@@ -67,34 +67,26 @@ static void sysinfo_screen_populate(struct sysinfo_screen *screen,
+ 
+ 	if (sysinfo->n_primary) {
+ 		line(NULL);
+-		line("%s", _("Primary platform versions:"));
+-		for (i = 0; i < sysinfo->n_primary; i++) {
+-			line("\t%s", sysinfo->platform_primary[i] ?: "");
+-		}
++		line("%s", _("Primary platform version:"));
++		line("\t%s", sysinfo->platform_primary[0] ?: "");
+ 	}
+ 
+ 	if (sysinfo->n_other) {
+ 		line(NULL);
+-		line("%s", _("Alternate platform versions:"));
+-		for (i = 0; i < sysinfo->n_other; i++) {
+-			line("\t%s", sysinfo->platform_other[i] ?: "");
+-		}
++		line("%s", _("Alternate platform version:"));
++		line("\t%s", sysinfo->platform_other[0] ?: "");
+ 	}
+ 
+ 	if (sysinfo->n_bmc_current) {
+ 		line(NULL);
+ 		line("%s", _("BMC current side:"));
+-		for (i = 0; i < sysinfo->n_bmc_current; i++) {
+-			line("\t%s", sysinfo->bmc_current[i] ?: "");
+-		}
++		line("\t%s", sysinfo->bmc_current[2] ?: "");
+ 	}
+ 
+ 	if (sysinfo->n_bmc_golden) {
+ 		line(NULL);
+ 		line("%s", _("BMC golden side:"));
+-		for (i = 0; i < sysinfo->n_bmc_golden; i++) {
+-			line("\t%s", sysinfo->bmc_golden[i] ?: "");
+-		}
++		line("\t%s", sysinfo->bmc_golden[2] ?: "");
+ 	}
+ 
+ 	if (sysinfo->n_blockdevs) {
+-- 
+1.9.1
+
