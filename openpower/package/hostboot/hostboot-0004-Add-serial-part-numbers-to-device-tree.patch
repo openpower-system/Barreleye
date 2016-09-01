@@ -1,15 +1,23 @@
-From fd391b73fe1cf21a5889e170ebfe55a6ddf58924 Mon Sep 17 00:00:00 2001
+From 7478d7f2f4677c3324723ba17d64c384ec5af1ed Mon Sep 17 00:00:00 2001
 From: Dean Sanner <dsanner@us.ibm.com>
 Date: Mon, 29 Feb 2016 14:44:32 -0600
-Subject: [PATCH 2/2] Add serial, part numbers to device tree
+Subject: [PATCH 4/5] Add serial, part numbers to device tree
 
 Change-Id: I951ed5e3cda059c6b1f999fb5956d9ebfc5bdadd
+Reviewed-on: http://ralgit01.raleigh.ibm.com/gerrit1/21458
+Tested-by: Jenkins Server <pfd-jenkins+hostboot@us.ibm.com>
+Tested-by: Jenkins OP Build CI <op-jenkins+hostboot@us.ibm.com>
+Tested-by: Jenkins OP HW <op-hw-jenkins+hostboot@us.ibm.com>
+Tested-by: FSP CI Jenkins <fsp-CI-jenkins+hostboot@us.ibm.com>
+Reviewed-by: Daniel M. Crowell <dcrowell@us.ibm.com>
+Reviewed-by: William G. Hoffa <wghoffa@us.ibm.com>
+Reviewed-by: Matthew A. Ploetz <maploetz@us.ibm.com>
 ---
  src/include/usr/vpd/spdenums.H |   2 +
- src/usr/devtree/bld_devtree.C  | 547 ++++++++++++++++++++++++++++++++++++++---
+ src/usr/devtree/bld_devtree.C  | 545 ++++++++++++++++++++++++++++++++++++++---
  src/usr/devtree/devtree.H      |   7 +-
  src/usr/vpd/spd.H              |   4 +-
- 4 files changed, 523 insertions(+), 37 deletions(-)
+ 4 files changed, 520 insertions(+), 38 deletions(-)
 
 diff --git a/src/include/usr/vpd/spdenums.H b/src/include/usr/vpd/spdenums.H
 index 9decbe8..e51e49c 100644
@@ -25,18 +33,9 @@ index 9decbe8..e51e49c 100644
  
  /**
 diff --git a/src/usr/devtree/bld_devtree.C b/src/usr/devtree/bld_devtree.C
-index 5c06a66..bdce611 100644
+index 1c56609..a732903 100644
 --- a/src/usr/devtree/bld_devtree.C
 +++ b/src/usr/devtree/bld_devtree.C
-@@ -5,7 +5,7 @@
- /*                                                                        */
- /* OpenPOWER HostBoot Project                                             */
- /*                                                                        */
--/* Contributors Listed Below - COPYRIGHT 2013,2015                        */
-+/* Contributors Listed Below - COPYRIGHT 2013,2016                        */
- /* [+] Google Inc.                                                        */
- /* [+] International Business Machines Corp.                              */
- /*                                                                        */
 @@ -41,6 +41,7 @@
  #include <sys/mm.h>
  #include <util/align.H>
@@ -45,7 +44,7 @@ index 5c06a66..bdce611 100644
  #include <vfs/vfs.H>
  #include <fsi/fsiif.H>
  #include <config.h>
-@@ -52,6 +53,9 @@
+@@ -55,6 +56,9 @@
  #include <fapi.H>
  #include <fapiPlatHwpInvoker.H> // for fapi::fapiRcToErrl()
  #include <vpd/mvpdenums.H>
@@ -55,7 +54,7 @@ index 5c06a66..bdce611 100644
  
  trace_desc_t *g_trac_devtree = NULL;
  TRAC_INIT(&g_trac_devtree, "DEVTREE", 4096);
-@@ -92,6 +96,143 @@ enum BuildConstants
+@@ -95,6 +99,143 @@ enum BuildConstants
      CEN_ID_TAG          = 0x80000000,
  };
  
@@ -199,7 +198,7 @@ index 5c06a66..bdce611 100644
  //   Opal will set this FIR bit any time a non-checkstop hardware error
  //   leads to a crash.  PRD will use this FIR bit to analyze appropriately.
  void bld_swCheckstopFir (devTree * i_dt, dtOffset_t & i_parentNode)
-@@ -578,15 +719,17 @@ void bld_fdt_pnor(devTree *   i_dt,
+@@ -704,15 +845,17 @@ void bld_fdt_pnor(devTree *   i_dt,
      return;
  }
  
@@ -219,7 +218,7 @@ index 5c06a66..bdce611 100644
  
      // Grab a system object to work with
      TARGETING::Target* sys = NULL;
-@@ -636,7 +779,7 @@ void bld_xscom_node(devTree * i_dt, dtOffset_t & i_parentNode,
+@@ -762,7 +905,7 @@ void bld_xscom_node(devTree * i_dt, dtOffset_t & i_parentNode,
      // Only add SBE interrupt timer for small tree
      if (i_smallTree)
      {
@@ -228,7 +227,7 @@ index 5c06a66..bdce611 100644
      }
  
      // Add proc chip ECIDs
-@@ -647,6 +790,35 @@ void bld_xscom_node(devTree * i_dt, dtOffset_t & i_parentNode,
+@@ -773,6 +916,33 @@ void bld_xscom_node(devTree * i_dt, dtOffset_t & i_parentNode,
      i_dt->addPropertyString(xscomNode, "ecid", ecid_ascii);
      CPPASSERT(sizeof(ATTR_ECID_type) == 16);
  
@@ -237,18 +236,16 @@ index 5c06a66..bdce611 100644
 +    i_dt->addPropertyString(xscomNode, "location",ep.toString());
 +
 +    //Add Product Part Number
-+    errhdl = readVPD(i_pProc, l_data,  DeviceFW::MVPD, MVPD::VRML, MVPD::PN);
-+    if (errhdl) { return errhdl; }
-+    l_data.push_back('\0');
++    TARGETING::ATTR_PART_NUMBER_type l_pn = {'0'};
++    i_pProc->tryGetAttr<TARGETING::ATTR_PART_NUMBER>(l_pn);
 +    i_dt->addPropertyString(xscomNode, "part-number",
-+                            reinterpret_cast<char*>(&l_data[0]));
++                            reinterpret_cast<char*>(&l_pn[0]));
 +
 +    //Add Product Serial Number
-+    errhdl = readVPD(i_pProc, l_data,  DeviceFW::MVPD, MVPD::VRML, MVPD::SN);
-+    if (errhdl) { return errhdl; }
-+    l_data.push_back('\0');
++    TARGETING::ATTR_SERIAL_NUMBER_type l_sn = {'0'};
++    i_pProc->tryGetAttr<TARGETING::ATTR_SERIAL_NUMBER>(l_sn);
 +    i_dt->addPropertyString(xscomNode, "serial-number",
-+                            reinterpret_cast<char*>(&l_data[0]));
++                            reinterpret_cast<char*>(&l_sn[0]));
 +
 +    //Add Board Info
 +    errhdl = readVPD(i_pProc, l_data,  DeviceFW::MVPD, MVPD::VINI, MVPD::DR);
@@ -264,15 +261,15 @@ index 5c06a66..bdce611 100644
      /*PSI Host Bridge*/
      uint32_t l_psiInfo = 0x2010900; /*PSI Host Bridge Scom addr*/
      dtOffset_t psiNode = i_dt->addNode(xscomNode, "psihb", l_psiInfo);
-@@ -741,6 +913,7 @@ void bld_xscom_node(devTree * i_dt, dtOffset_t & i_parentNode,
+@@ -867,6 +1037,7 @@ void bld_xscom_node(devTree * i_dt, dtOffset_t & i_parentNode,
      /*I2C Masters*/
-     add_i2c_info( i_pProc, i_dt, xscomNode );
+     add_i2c_info( i_pProc, i_dt, xscomNode, l_xscomAddr );
  
 +    return errhdl;
  }
  
  uint32_t bld_l3_node(devTree * i_dt, dtOffset_t & i_parentNode,
-@@ -1117,7 +1290,7 @@ void add_reserved_mem(devTree * i_dt,
+@@ -1243,7 +1414,7 @@ void add_reserved_mem(devTree * i_dt,
      // added per comment from Dean Sanner
      // cell_count has limit of DT_MAX_MEM_RESERVE  = 16. Is this enough
      // for all processors + 1 vpd area + 1 target area?
@@ -281,7 +278,7 @@ index 5c06a66..bdce611 100644
  }
  
  void load_hbrt_image(uint64_t& io_address)
-@@ -1356,6 +1529,19 @@ errlHndl_t bld_fdt_system(devTree * i_dt, bool i_smallTree)
+@@ -1569,6 +1740,19 @@ errlHndl_t bld_fdt_system(devTree * i_dt, bool i_smallTree)
                      i_dt->addPropertyString(rootNode, "system-id", ssBuf);
                  }
              }
@@ -301,7 +298,7 @@ index 5c06a66..bdce611 100644
          }
          // just delete any errors we get, this isn't critical
          if( errhdl )
-@@ -1399,7 +1585,7 @@ errlHndl_t bld_fdt_cpu(devTree * i_dt,
+@@ -1612,7 +1796,7 @@ errlHndl_t bld_fdt_cpu(devTree * i_dt,
  
      for (size_t proc = 0; (!errhdl) && (proc < l_procTargetList.size()); proc++)
      {
@@ -310,7 +307,7 @@ index 5c06a66..bdce611 100644
  
          uint32_t l_chipid = getProcChipId(l_pProc);
  
-@@ -1408,7 +1594,9 @@ errlHndl_t bld_fdt_cpu(devTree * i_dt,
+@@ -1621,7 +1805,9 @@ errlHndl_t bld_fdt_cpu(devTree * i_dt,
          TARGETING::targetService().masterProcChipTargetHandle(l_pMasterProc);
          if((!i_smallTree) || (l_pProc == l_pMasterProc) )
          {
@@ -321,7 +318,7 @@ index 5c06a66..bdce611 100644
          }
          if (i_smallTree) // nothing else for small tree
          {
-@@ -1500,8 +1688,162 @@ errlHndl_t bld_fdt_reserved_mem(devTree * i_dt,
+@@ -1737,8 +1923,162 @@ errlHndl_t bld_fdt_reserved_mem(devTree * i_dt,
  
  }
  
@@ -484,7 +481,7 @@ index 5c06a66..bdce611 100644
      // Nothing to do for small trees currently.
      if (i_smallTree) { return NULL; }
  
-@@ -1608,19 +1950,19 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
+@@ -1845,19 +2185,19 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
  
          // Get all functional memb chip targets
          TARGETING::TargetHandleList l_memBufList;
@@ -507,7 +504,7 @@ index 5c06a66..bdce611 100644
                              TargetService::PARENT_BY_AFFINITY,
                              TargetService::ALL,
                              &l_mcs);
-@@ -1631,7 +1973,7 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
+@@ -1868,7 +2208,7 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
                  //the inband Scom DD.... going to skip creating node
                  //if true
                  TRACFCOMP(g_trac_devtree,ERR_MRK" MCS for 0x%x not found",
@@ -516,7 +513,7 @@ index 5c06a66..bdce611 100644
                  continue;
              }
              Target* parentMCS = *(mcs_list.begin());
-@@ -1646,14 +1988,85 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
+@@ -1883,14 +2223,85 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
              i_dt->addPropertyCell32(membNode, "#address-cells", 1);
              i_dt->addPropertyCell32(membNode, "#size-cells", 1);
  
@@ -575,14 +572,6 @@ index 5c06a66..bdce611 100644
 +                                        reinterpret_cast<char*>(&l_data[0]));
 +            }
 +
-+            // Add membuf ECIDs
-+            ATTR_ECID_type ecid;
-+            l_mb->tryGetAttr<ATTR_ECID>(ecid);
-+            char ecid_ascii[33];
-+            sprintf(ecid_ascii, "%.16llX%.16llX", ecid[0], ecid[1]);
-+            i_dt->addPropertyString(membNode, "ecid", ecid_ascii);
-+            CPPASSERT(sizeof(ATTR_ECID_type) == 16);
-+
 +            //Set property to indicate fault (not using)
 +            //and don't add anything else (OPAL keys off of it to
 +            //actively use the chip)
@@ -591,6 +580,14 @@ index 5c06a66..bdce611 100644
 +                i_dt->addProperty(membNode, "fault");
 +                continue;
 +            }
++
++            // Add membuf ECIDs
++            ATTR_ECID_type ecid;
++            l_mb->tryGetAttr<ATTR_ECID>(ecid);
++            char ecid_ascii[33];
++            sprintf(ecid_ascii, "%.16llX%.16llX", ecid[0], ecid[1]);
++            i_dt->addPropertyString(membNode, "ecid", ecid_ascii);
++            CPPASSERT(sizeof(ATTR_ECID_type) == 16);
 +
 +            uint32_t l_ec = l_mb->getAttr<ATTR_EC>();
              char cenVerStr[32];
@@ -604,7 +601,7 @@ index 5c06a66..bdce611 100644
                 getAttr<TARGETING::ATTR_SCOM_SWITCHES>().useInbandScom == 0x0)
              {
                  i_dt->addProperty(membNode,"use-fsi");
-@@ -1664,27 +2077,19 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
+@@ -1901,27 +2312,19 @@ errlHndl_t bld_fdt_mem(devTree * i_dt, bool i_smallTree)
              i_dt->addPropertyCell32(membNode, "ibm,fsi-master-chip-id",
                                      l_procId);
  
@@ -622,7 +619,7 @@ index 5c06a66..bdce611 100644
                                       cmfsiCells, 2);
  
              //Add any I2C devices hanging off this chip
--            add_i2c_info( l_pMemB, i_dt, membNode );
+-            add_i2c_info( l_pMemB, i_dt, membNode, l_ibscomBase);
 -
 -            // Add membuf ECIDs
 -            ATTR_ECID_type ecid;
@@ -631,11 +628,11 @@ index 5c06a66..bdce611 100644
 -            sprintf(ecid_ascii, "%.16llX%.16llX", ecid[0], ecid[1]);
 -            i_dt->addPropertyString(membNode, "ecid", ecid_ascii);
 -            CPPASSERT(sizeof(ATTR_ECID_type) == 16);
-+            add_i2c_info( l_mb, i_dt, membNode );
++            add_i2c_info( l_mb, i_dt, membNode, l_ibscomBase);
          }
  
  
-@@ -1850,13 +2255,21 @@ errlHndl_t bld_fdt_bmc(devTree * i_dt, bool i_smallTree)
+@@ -2087,13 +2490,21 @@ errlHndl_t bld_fdt_bmc(devTree * i_dt, bool i_smallTree)
      /* Nothing to do for small trees currently. */
      if (i_smallTree) { return NULL; }
  
@@ -662,7 +659,7 @@ index 5c06a66..bdce611 100644
  
      /* Add the # address & size cell properties to /bmc node. */
      i_dt->addPropertyCell32(bmcNode, "#address-cells", 1);
-@@ -1980,7 +2393,7 @@ errlHndl_t bld_fdt_vpd(devTree * i_dt, bool i_smallTree)
+@@ -2217,7 +2628,7 @@ errlHndl_t bld_fdt_vpd(devTree * i_dt, bool i_smallTree)
                  dtOffset_t exNode = i_dt->addNode(procNode, "cpu",
                                                      pir.word);
  
@@ -671,7 +668,7 @@ index 5c06a66..bdce611 100644
                                       reinterpret_cast<uint8_t*>( &l_poundVdata),
                                       sizeof(fapi::voltageBucketData_t));
              }
-@@ -1994,7 +2407,6 @@ errlHndl_t bld_fdt_vpd(devTree * i_dt, bool i_smallTree)
+@@ -2231,7 +2642,6 @@ errlHndl_t bld_fdt_vpd(devTree * i_dt, bool i_smallTree)
              break;
          }
  
@@ -679,7 +676,7 @@ index 5c06a66..bdce611 100644
          /***************************************************************/
          /* Now loop on all the dimms in the system and add their spd   */
          /***************************************************************/
-@@ -2049,13 +2461,77 @@ errlHndl_t bld_fdt_vpd(devTree * i_dt, bool i_smallTree)
+@@ -2286,7 +2696,6 @@ errlHndl_t bld_fdt_vpd(devTree * i_dt, bool i_smallTree)
          {
              break;
          }
@@ -687,13 +684,15 @@ index 5c06a66..bdce611 100644
  
      }while(0);
  
-     return errhdl;
+@@ -2356,6 +2765,72 @@ void bld_fdt_mnfgMode(devTree * i_dt, bool i_smallTree)
+     return;
  }
  
 +errlHndl_t bld_fdt_fw_info(devTree * i_dt, bool i_smallTree)
 +{
 +    // Nothing to do for small trees currently.
 +    if (i_smallTree) { return NULL; }
++
 +
 +    errlHndl_t l_errl = NULL;
 +    std::vector<uint8_t> l_data;
@@ -758,17 +757,25 @@ index 5c06a66..bdce611 100644
  errlHndl_t build_flatdevtree( uint64_t i_dtAddr, size_t i_dtSize,
                                bool i_smallTree )
  {
-@@ -2119,6 +2595,13 @@ errlHndl_t build_flatdevtree( uint64_t i_dtAddr, size_t i_dtSize,
-         {
+@@ -2420,8 +2895,8 @@ errlHndl_t build_flatdevtree( uint64_t i_dtAddr, size_t i_dtSize,
              break;
          }
-+
+ 
+-        TRACFCOMP( g_trac_devtree, "---devtree secureboot ---" );
+-        errhdl = bld_fdt_secureboot(dt, i_smallTree);
 +        TRACFCOMP( g_trac_devtree, "---devtree firmware ---" );
 +        errhdl = bld_fdt_fw_info(dt, i_smallTree);
-+        if(errhdl)
-+        {
-+            break;
-+        }
+         if(errhdl)
+         {
+             break;
+@@ -2430,6 +2905,10 @@ errlHndl_t build_flatdevtree( uint64_t i_dtAddr, size_t i_dtSize,
+         TRACFCOMP( g_trac_devtree, "---devtree mnfg mode ---" );
+         bld_fdt_mnfgMode(dt, i_smallTree);
+ 
++        TRACFCOMP( g_trac_devtree, "---devtree secureboot ---" );
++        errhdl = bld_fdt_secureboot(dt, i_smallTree);
++
++
      }while(0);
  
      return errhdl;
@@ -820,5 +827,5 @@ index 6c02cf2..15d2549 100755
      // Module Type address/size/mask/constants for both DDR3 and DDR4
      MOD_TYPE_ADDR            = 0x03,
 -- 
-1.8.2.2
+2.6.2.windows.1
 
