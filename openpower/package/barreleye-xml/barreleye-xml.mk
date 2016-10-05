@@ -8,7 +8,7 @@ BARRELEYE_XML_VERSION ?= ef8ad6a9fb0c1b72eeda4293fd0c794856ea31ce
 BARRELEYE_XML_SITE = $(call github,bogatseng,barreleye-xml,$(BARRELEYE_XML_VERSION))
 
 BARRELEYE_XML_LICENSE = Apache-2.0
-BARRELEYE_XML_DEPENDENCIES = hostboot-install-images openpower-mrw-install-images common-p8-xml-install-images
+BARRELEYE_XML_DEPENDENCIES = hostboot openpower-mrw common-p8-xml
 
 BARRELEYE_XML_INSTALL_IMAGES = YES
 BARRELEYE_XML_INSTALL_TARGET = YES
