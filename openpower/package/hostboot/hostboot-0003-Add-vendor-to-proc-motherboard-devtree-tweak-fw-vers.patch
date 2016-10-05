@@ -1,7 +1,7 @@
 From 594a28d2e37760f0ba6f3fb946c4ebe232917d8a Mon Sep 17 00:00:00 2001
 From: Dean Sanner <dsanner@us.ibm.com>
 Date: Fri, 19 Aug 2016 11:31:40 -0500
-Subject: [PATCH 5/5] Add vendor to proc/motherboard devtree, tweak fw versions
+Subject: [PATCH] Add vendor to proc/motherboard devtree, tweak fw versions
 
 Enable LOCATION_CODE ATTR to be used as location in
 device tree.  This can be set in MRW in the "connection"
