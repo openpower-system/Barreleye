@@ -3,7 +3,7 @@
 #
 ################################################################################
 
-MACHINE_XML_VERSION ?= $(BR2_OPENPOWER_MACHINE_XML_VERSION)
+MACHINE_XML_VERSION ?= $(call qstrip,$(BR2_OPENPOWER_MACHINE_XML_VERSION))
 ifeq ($(BR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT),y)
 MACHINE_XML_SITE = $(call github,open-power,$(BR2_OPENPOWER_MACHINE_XML_GITHUB_PROJECT_VALUE),$(MACHINE_XML_VERSION))
 else ifeq ($(BR2_OPENPOWER_MACHINE_XML_CUSTOM_GIT),y)
@@ -31,6 +31,8 @@ PETITBOOT_BIOS_XML_METADATA_FILE = \
     $(MRW_HB_TOOLS)/$(BR2_OPENPOWER_CONFIG_NAME)_bios_metadata_petitboot.xml
 PETITBOOT_BIOS_XML_METADATA_INITRAMFS_FILE = \
     $(TARGET_DIR)/usr/share/bios_metadata.xml
+
+WOFDATA_FILE = `ls $(MRW_SCRATCH)/wofdata`
 
 ifeq ($(BR2_OPENPOWER_MACHINE_XML_OPPOWERVM_ATTRIBUTES),y)
 MACHINE_XML_OPPOWERVM_ATTR_XML = $(MRW_HB_TOOLS)/attribute_types_oppowervm.xml
@@ -79,7 +81,7 @@ define MACHINE_XML_BUILD_CMDS
         $(MRW_HB_TOOLS)/xmltohb.pl  \
             --hb-xml-file=$(MRW_HB_TOOLS)/temporary_hb.hb.xml \
             --fapi-attributes-xml-file=$(MRW_HB_TOOLS)/fapiattrs.xml \
-            --src-output-dir=none \
+            --src-output-dir=$(MRW_HB_TOOLS)/ \
             --img-output-dir=$(MRW_HB_TOOLS)/ \
             --vmm-consts-file=$(MRW_HB_TOOLS)/vmmconst.h --noshort-enums \
             --bios-xml-file=$(OPENPOWER_BIOS_XML_CONFIG_FILE) \
@@ -91,6 +93,18 @@ define MACHINE_XML_BUILD_CMDS
             $(PETITBOOT_BIOS_XML_METADATA_FILE) \
             $(PETITBOOT_XSLT_FILE) \
             $(BIOS_XML_METADATA_FILE)
+
+        # Create the wofdata
+        if [ -e $(MRW_HB_TOOLS)/wof-tables-img ]; then \
+            chmod +x $(MRW_HB_TOOLS)/wof-tables-img; \
+        fi
+        
+		if [ -d $(MRW_SCRATCH)/wofdata ]; then \
+			$(MRW_HB_TOOLS)/wof-tables-img --create $(MRW_SCRATCH)/wof_output $(MRW_SCRATCH)/wofdata; \
+        fi
+
+
+
 endef
 
 define MACHINE_XML_INSTALL_IMAGES_CMDS

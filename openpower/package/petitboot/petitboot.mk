@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-PETITBOOT_VERSION = v1.4.2
+PETITBOOT_VERSION = v1.5.0
 PETITBOOT_SITE ?= $(call github,open-power,petitboot,$(PETITBOOT_VERSION))
 PETITBOOT_DEPENDENCIES = ncurses udev host-bison host-flex lvm2
 PETITBOOT_LICENSE = GPLv2
@@ -60,6 +60,8 @@ define PETITBOOT_POST_INSTALL
 	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_OP_BUILD_PATH)/package/petitboot/63-md-raid-arrays.rules \
 		$(TARGET_DIR)/etc/udev/rules.d/
 	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL_OP_BUILD_PATH)/package/petitboot/65-md-incremental.rules \
+		$(TARGET_DIR)/etc/udev/rules.d/
+	$(INSTALL) -D -m 0755 $(BR2_EXTERNAL)/package/petitboot/66-add-sg-module.rules \
 		$(TARGET_DIR)/etc/udev/rules.d/
 
 	ln -sf /usr/sbin/pb-udhcpc \
