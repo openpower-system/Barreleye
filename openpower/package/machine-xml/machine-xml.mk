@@ -98,17 +98,30 @@ define MACHINE_XML_BUILD_CMDS
         if [ -e $(MRW_HB_TOOLS)/wof-tables-img ]; then \
             chmod +x $(MRW_HB_TOOLS)/wof-tables-img; \
         fi
-        
-		if [ -d $(MRW_SCRATCH)/wofdata ]; then \
-			$(MRW_HB_TOOLS)/wof-tables-img --create $(MRW_SCRATCH)/wof_output $(MRW_SCRATCH)/wofdata; \
+
+        if [ -d $(MRW_SCRATCH)/wofdata ]; then \
+            $(MRW_HB_TOOLS)/wof-tables-img --create $(MRW_SCRATCH)/wof_output $(MRW_SCRATCH)/wofdata; \
         fi
 
+        # Create the MEMD binary
+        if [ -e $(MRW_HB_TOOLS)/memd_creation.pl ]; then \
+            chmod +x $(MRW_HB_TOOLS)/memd_creation.pl; \
+        fi
 
+        if [ -d $(MRW_SCRATCH)/memd_binaries ]; then \
+            $(MRW_HB_TOOLS)/memd_creation.pl -memd_dir $(MRW_SCRATCH)/memd_binaries -memd_output $(MRW_SCRATCH)/memd_output.dat; \
+        fi
 
 endef
 
 define MACHINE_XML_INSTALL_IMAGES_CMDS
         mv $(MRW_HB_TOOLS)/targeting.bin $(MRW_HB_TOOLS)/$(BR2_OPENPOWER_TARGETING_BIN_FILENAME)
+        if [ -e $(MRW_HB_TOOLS)/targeting.bin.protected ]; then \
+            mv -v $(MRW_HB_TOOLS)/targeting.bin.protected $(MRW_HB_TOOLS)/$(BR2_OPENPOWER_TARGETING_BIN_FILENAME).protected; \
+        fi
+        if [ -e $(MRW_HB_TOOLS)/targeting.bin.unprotected ]; then \
+            mv -v $(MRW_HB_TOOLS)/targeting.bin.unprotected $(MRW_HB_TOOLS)/$(BR2_OPENPOWER_TARGETING_BIN_FILENAME).unprotected; \
+        fi
 endef
 
 define MACHINE_XML_INSTALL_TARGET_CMDS
