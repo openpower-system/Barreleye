@@ -1,4 +1,4 @@
-From 90e2633bfc44feade9410b159f10d87aebc8df9c Mon Sep 17 00:00:00 2001
+From 147dcddc76ea853357ad88cb55c8ff3f00a061e5 Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 13:24:57 +0800
 Subject: [PATCH 3/5] Disable hotkey L in VGA

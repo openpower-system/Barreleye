@@ -1,13 +1,30 @@
-From 09657050b65d5598ec9c2b38070ac92b275c535a Mon Sep 17 00:00:00 2001
+From 9871f6e8f745140d59c99b33ff4e2114f241b140 Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 12:54:00 +0800
 Subject: [PATCH 2/5] Disable multi-languages in VGA console
 
 ---
- ui/ncurses/nc-cui.c | 53 +++++++++++++++++++++++++++++++++++++++--------------
- 1 file changed, 39 insertions(+), 14 deletions(-)
+ ui/ncurses/nc-cui-help.c |  2 --
+ ui/ncurses/nc-cui.c      | 53 +++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 39 insertions(+), 16 deletions(-)
+ mode change 100644 => 100755 ui/ncurses/nc-cui-help.c
  mode change 100644 => 100755 ui/ncurses/nc-cui.c
 
+diff --git a/ui/ncurses/nc-cui-help.c b/ui/ncurses/nc-cui-help.c
+old mode 100644
+new mode 100755
+index 7d97ba5..558690c
+--- a/ui/ncurses/nc-cui-help.c
++++ b/ui/ncurses/nc-cui-help.c
+@@ -16,8 +16,6 @@ network interface, type I (information).\n\
+ \n\
+ To make changes to the system configuration, type C (configure).\n\
+ \n\
+-To set the language for the petitboot interface, type L (language).\n\
+-\n\
+ To view the log of status messages from the discovery process, type G (log).\n\
+ \n\
+ To find new or updated boot options on the system, select the 'Rescan devices' \
 diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
 old mode 100644
 new mode 100755

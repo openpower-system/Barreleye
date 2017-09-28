@@ -1,14 +1,14 @@
-From 6a169aed25491a3da1cabc17a0d2dd6a76744479 Mon Sep 17 00:00:00 2001
+From 3a4f547b47ff924bc9ec7f6f822f547adea2bad5 Mon Sep 17 00:00:00 2001
 From: Johnny Chang <johnny.cl.chang@foxconn.com>
 Date: Wed, 22 Jun 2016 20:28:09 +0800
-Subject: [PATCH] Modify version information shown in sysinfo page
+Subject: [PATCH 5/5] Modify version information shown in sysinfo page
 
 ---
  ui/ncurses/nc-sysinfo.c | 20 ++++++--------------
  1 file changed, 6 insertions(+), 14 deletions(-)
 
 diff --git a/ui/ncurses/nc-sysinfo.c b/ui/ncurses/nc-sysinfo.c
-index ce8957c..e192cac 100644
+index 8252b45..e0cb043 100644
 --- a/ui/ncurses/nc-sysinfo.c
 +++ b/ui/ncurses/nc-sysinfo.c
 @@ -67,34 +67,26 @@ static void sysinfo_screen_populate(struct sysinfo_screen *screen,

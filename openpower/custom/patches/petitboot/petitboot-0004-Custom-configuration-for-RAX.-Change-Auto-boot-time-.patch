@@ -1,4 +1,4 @@
-From cf8909aefb66f33390d87568ea2bd493002bd352 Mon Sep 17 00:00:00 2001
+From ae4c6ac9fef6ed2148114b446167d68f7929327d Mon Sep 17 00:00:00 2001
 From: Johnny <johnny.cl.chang@foxconn.com>
 Date: Thu, 31 Mar 2016 09:51:42 +0800
 Subject: [PATCH 4/5] Custom configuration for RAX. - Change Auto-boot time
@@ -13,10 +13,10 @@ Subject: [PATCH 4/5] Custom configuration for RAX. - Change Auto-boot time
 diff --git a/discover/platform.c b/discover/platform.c
 old mode 100644
 new mode 100755
-index fc0930d..af33c2f
+index cc6306f..caeae88
 --- a/discover/platform.c
 +++ b/discover/platform.c
-@@ -107,7 +107,7 @@ void config_set_defaults(struct config *config)
+@@ -120,7 +120,7 @@ void config_set_defaults(struct config *config)
  	const char *lang;
  
  	config->autoboot_enabled = true;
@@ -25,7 +25,7 @@ index fc0930d..af33c2f
  	config->autoboot_enabled = true;
  	config->network.interfaces = NULL;
  	config->network.n_interfaces = 0;
-@@ -121,9 +121,9 @@ void config_set_defaults(struct config *config)
+@@ -140,9 +140,9 @@ void config_set_defaults(struct config *config)
  	config->autoboot_opts = talloc_array(config, struct autoboot_option,
  						config->n_autoboot_opts);
  	config->autoboot_opts[0].boot_type = BOOT_DEVICE_TYPE;
