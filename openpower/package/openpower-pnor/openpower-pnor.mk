@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-OPENPOWER_PNOR_VERSION ?= 3b22d6343a1984dd5ae9a555491771aecdaa2cc0
+OPENPOWER_PNOR_VERSION ?= 21d66daff697f8c13fb067340ca621e9208ab1ea
 OPENPOWER_PNOR_SITE ?= $(call github,open-power,pnor,$(OPENPOWER_PNOR_VERSION))
 
 OPENPOWER_PNOR_LICENSE = Apache-2.0
@@ -61,6 +61,18 @@ SBE_BINARY_DIR = $(STAGING_DIR)/sbe_binaries/
 OPENPOWER_PNOR_SCRATCH_DIR = $(STAGING_DIR)/openpower_pnor_scratch/
 OPENPOWER_VERSION_DIR = $(STAGING_DIR)/openpower_version
 OPENPOWER_MRW_SCRATCH_DIR = $(STAGING_DIR)/openpower_mrw_scratch
+OUTPUT_BUILD_DIR = $(STAGING_DIR)/../../../build/
+OUTPUT_IMAGES_DIR = $(STAGING_DIR)/../../../images/
+HOSTBOOT_BUILD_IMAGES_DIR = $(STAGING_DIR)/../../../staging/hostboot_build_images/
+
+FILES_TO_TAR = $(HOSTBOOT_BUILD_IMAGES_DIR)/* \
+               $(OUTPUT_BUILD_DIR)/skiboot-*/skiboot.elf \
+               $(OUTPUT_BUILD_DIR)/skiboot-*/skiboot.map \
+               $(OUTPUT_BUILD_DIR)/linux-*/.config \
+               $(OUTPUT_BUILD_DIR)/linux-*/vmlinux \
+               $(OUTPUT_BUILD_DIR)/linux-*/System.map \
+               $(OUTPUT_IMAGES_DIR)/zImage.epapr
+
 
 # Subpackages we want to include in the version info (do not include openpower-pnor)
 OPENPOWER_VERSIONED_SUBPACKAGES = skiboot hostboot linux petitboot machine-xml occ hostboot-binaries capp-ucode
@@ -130,9 +142,12 @@ define OPENPOWER_PNOR_INSTALL_IMAGES_CMDS
         # If this is a VPNOR system, run the generate-squashfs command and
         # create a tarball
         if [ "$(BR2_BUILD_PNOR_SQUASHFS)" == "y" ]; then \
-            PATH=$(PATH):$(HOST_DIR)/usr/bin $(HOST_DIR)/usr/bin/generate-squashfs -f $(STAGING_DIR)/pnor/$(BR2_OPENPOWER_PNOR_FILENAME).squashfs.tar $(STAGING_DIR)/pnor/$(BR2_OPENPOWER_PNOR_FILENAME); \
+            PATH=$(HOST_DIR)/usr/bin:$(PATH) $(HOST_DIR)/usr/bin/generate-squashfs -f $(STAGING_DIR)/pnor/$(BR2_OPENPOWER_PNOR_FILENAME).squashfs.tar $(STAGING_DIR)/pnor/$(BR2_OPENPOWER_PNOR_FILENAME); \
             $(INSTALL) $(STAGING_DIR)/pnor/$(BR2_OPENPOWER_PNOR_FILENAME).squashfs.tar $(BINARIES_DIR); \
         fi
+
+	    tar --transform 's/.*\///g' -zcvf $(OUTPUT_IMAGES_DIR)/host_fw_debug.tar $(FILES_TO_TAR)
+
 endef
 
 $(eval $(generic-package))
