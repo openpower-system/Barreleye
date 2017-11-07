@@ -1,4 +1,4 @@
-From 147dcddc76ea853357ad88cb55c8ff3f00a061e5 Mon Sep 17 00:00:00 2001
+From d8c9c96d6d5ef0244e19ffb50f86cf53ed84e762 Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 13:24:57 +0800
 Subject: [PATCH 3/5] Disable hotkey L in VGA
@@ -10,10 +10,10 @@ Subject: [PATCH 3/5] Disable hotkey L in VGA
  mode change 100644 => 100755 ui/ncurses/nc-menu.c
 
 diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
-index 3b7d18e..9f8bcdc 100755
+index 5d8b0f1..e3e0949 100755
 --- a/ui/ncurses/nc-cui.c
 +++ b/ui/ncurses/nc-cui.c
-@@ -899,8 +899,14 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1225,8 +1225,14 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	m->scr.frame.ltitle = talloc_asprintf(m,
  		"Petitboot (" PACKAGE_VERSION ")");
  	m->scr.frame.rtitle = NULL;
@@ -33,10 +33,10 @@ index 3b7d18e..9f8bcdc 100755
 diff --git a/ui/ncurses/nc-menu.c b/ui/ncurses/nc-menu.c
 old mode 100644
 new mode 100755
-index 90a2c0a..6068b4b
+index 54d82ff..095ff26
 --- a/ui/ncurses/nc-menu.c
 +++ b/ui/ncurses/nc-menu.c
-@@ -350,6 +350,21 @@ static void pmenu_move_cursor(struct pmenu *menu, int req)
+@@ -374,6 +374,21 @@ static void pmenu_move_cursor(struct pmenu *menu, int req)
  }
  
  /**
@@ -58,7 +58,7 @@ index 90a2c0a..6068b4b
   * pmenu_process_key - Process a user keystroke.
   */
  
-@@ -416,7 +431,8 @@ static void pmenu_process_key(struct nc_scr *scr, int key)
+@@ -440,7 +455,8 @@ static void pmenu_process_key(struct nc_scr *scr, int key)
  		cui_show_config(cui_from_arg(scr->ui_ctx));
  		break;
  	case 'l':

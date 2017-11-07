@@ -1,12 +1,12 @@
-From 9871f6e8f745140d59c99b33ff4e2114f241b140 Mon Sep 17 00:00:00 2001
+From 1290fcddfe87a9ab470e74dfc9fddb88be8633f0 Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 12:54:00 +0800
 Subject: [PATCH 2/5] Disable multi-languages in VGA console
 
 ---
  ui/ncurses/nc-cui-help.c |  2 --
- ui/ncurses/nc-cui.c      | 53 +++++++++++++++++++++++++++++++++++-------------
- 2 files changed, 39 insertions(+), 16 deletions(-)
+ ui/ncurses/nc-cui.c      | 55 +++++++++++++++++++++++++++++++++++-------------
+ 2 files changed, 40 insertions(+), 17 deletions(-)
  mode change 100644 => 100755 ui/ncurses/nc-cui-help.c
  mode change 100644 => 100755 ui/ncurses/nc-cui.c
 
@@ -28,10 +28,10 @@ index 7d97ba5..558690c
 diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
 old mode 100644
 new mode 100755
-index fbc02b9..3b7d18e
+index 6ced24c..5d8b0f1
 --- a/ui/ncurses/nc-cui.c
 +++ b/ui/ncurses/nc-cui.c
-@@ -859,6 +859,21 @@ static int menu_add_url_execute(struct pmenu_item *item)
+@@ -1185,6 +1185,21 @@ static int menu_plugin_execute(struct pmenu_item *item)
  }
  
  /**
@@ -53,23 +53,23 @@ index fbc02b9..3b7d18e
   * pb_mm_init - Setup the main menu instance.
   */
  static struct pmenu *main_menu_init(struct cui *cui)
-@@ -867,8 +882,13 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1193,8 +1208,13 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	struct pmenu *m;
  	int result;
  	bool lockdown = lockdown_active();
 -
--	m = pmenu_init(cui, 8, cui_on_exit);
+-	m = pmenu_init(cui, 9, cui_on_exit);
 +	int menu_index=0;
 +	
 +	if(is_fbcon()){
-+		m = pmenu_init(cui, 7, cui_on_exit);
-+	}else{
 +		m = pmenu_init(cui, 8, cui_on_exit);
++	}else{
++		m = pmenu_init(cui, 9, cui_on_exit);
 +	}
  	if (!m) {
  		pb_log("%s: failed\n", __func__);
  		return NULL;
-@@ -886,40 +906,45 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1212,44 +1232,49 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	/* add a separator */
  	i = pmenu_item_create(m, " ");
  	item_opts_off(i->nci, O_SELECTABLE);
@@ -117,12 +117,17 @@ index fbc02b9..3b7d18e
 -	pmenu_item_insert(m, i, 6);
 +	pmenu_item_insert(m, i, menu_index++);
  
+ 	i = pmenu_item_create(m, _("Plugins (0)"));
+ 	i->on_execute = menu_plugin_execute;
+-	pmenu_item_insert(m, i, 7);
++	pmenu_item_insert(m, i, menu_index++);
+ 
  	if (lockdown)
  		i = pmenu_item_create(m, _("Reboot"));
  	else
  		i = pmenu_item_create(m, _("Exit to shell"));
  	i->on_execute = pmenu_exit_cb;
--	pmenu_item_insert(m, i, 7);
+-	pmenu_item_insert(m, i, 8);
 +	pmenu_item_insert(m, i, menu_index++);
  
  	result = pmenu_setup(m);
