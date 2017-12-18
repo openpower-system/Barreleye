@@ -16,7 +16,7 @@ index bf91f70..e86e9de 100755
  	fi
  fi
 -
-+version="BIOS Version: 0.1.3"
++version="BIOS Version: 0.0.1"
  echo $version
 -- 
 1.9.1
