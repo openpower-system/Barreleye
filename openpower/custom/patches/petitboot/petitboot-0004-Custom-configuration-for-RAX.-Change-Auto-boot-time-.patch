@@ -1,4 +1,4 @@
-From a2d14df3a3d662e9dcc78fad3b4c3941d981d588 Mon Sep 17 00:00:00 2001
+From c8d611109eaaf763ea48f7fc4f68efcd54429667 Mon Sep 17 00:00:00 2001
 From: Johnny <johnny.cl.chang@foxconn.com>
 Date: Thu, 31 Mar 2016 09:51:42 +0800
 Subject: [PATCH 4/5] Custom configuration for RAX. - Change Auto-boot time
