@@ -50,7 +50,7 @@ CONFIG_NUMA=y
 CONFIG_PPC_64K_PAGES=y
 CONFIG_SCHED_SMT=y
 CONFIG_CMDLINE_BOOL=y
-CONFIG_CMDLINE="console=tty0 console=hvc0 powersave=off mlx4_core.enable_4k_uar=1"
+CONFIG_CMDLINE="console=tty0 console=hvc0 powersave=off mlx4_core.enable_4k_uar=1 modprobe.blacklist=nvme"
 # CONFIG_SECCOMP is not set
 CONFIG_NET=y
 CONFIG_PACKET=y
@@ -74,7 +74,7 @@ CONFIG_BLK_DEV_LOOP=y
 CONFIG_BLK_DEV_RAM=y
 CONFIG_BLK_DEV_RAM_SIZE=65536
 CONFIG_VIRTIO_BLK=m
-# CONFIG_BLK_DEV_NVME is not set
+CONFIG_BLK_DEV_NVME=m
 CONFIG_EEPROM_AT24=y
 # CONFIG_CXL is not set
 CONFIG_BLK_DEV_SD=m
