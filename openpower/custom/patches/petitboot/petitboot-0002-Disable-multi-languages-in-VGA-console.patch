@@ -1,4 +1,4 @@
-From 1290fcddfe87a9ab470e74dfc9fddb88be8633f0 Mon Sep 17 00:00:00 2001
+From ff70fa50e2f044e7e8fe9751f23e40a00341e259 Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 12:54:00 +0800
 Subject: [PATCH 2/5] Disable multi-languages in VGA console
@@ -28,10 +28,10 @@ index 7d97ba5..558690c
 diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
 old mode 100644
 new mode 100755
-index 6ced24c..5d8b0f1
+index f9f8247..2bd5feb
 --- a/ui/ncurses/nc-cui.c
 +++ b/ui/ncurses/nc-cui.c
-@@ -1185,6 +1185,21 @@ static int menu_plugin_execute(struct pmenu_item *item)
+@@ -1227,6 +1227,21 @@ static int menu_plugin_execute(struct pmenu_item *item)
  }
  
  /**
@@ -53,7 +53,7 @@ index 6ced24c..5d8b0f1
   * pb_mm_init - Setup the main menu instance.
   */
  static struct pmenu *main_menu_init(struct cui *cui)
-@@ -1193,8 +1208,13 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1235,8 +1250,13 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	struct pmenu *m;
  	int result;
  	bool lockdown = lockdown_active();
@@ -69,7 +69,7 @@ index 6ced24c..5d8b0f1
  	if (!m) {
  		pb_log("%s: failed\n", __func__);
  		return NULL;
-@@ -1212,44 +1232,49 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1262,44 +1282,49 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	/* add a separator */
  	i = pmenu_item_create(m, " ");
  	item_opts_off(i->nci, O_SELECTABLE);

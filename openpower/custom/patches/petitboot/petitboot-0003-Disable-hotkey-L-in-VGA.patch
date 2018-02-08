@@ -1,4 +1,4 @@
-From d8c9c96d6d5ef0244e19ffb50f86cf53ed84e762 Mon Sep 17 00:00:00 2001
+From 6fd8879ae29bc7f3675d32aa759c71eeb9a50b60 Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 13:24:57 +0800
 Subject: [PATCH 3/5] Disable hotkey L in VGA
@@ -10,10 +10,10 @@ Subject: [PATCH 3/5] Disable hotkey L in VGA
  mode change 100644 => 100755 ui/ncurses/nc-menu.c
 
 diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
-index 5d8b0f1..e3e0949 100755
+index 2bd5feb..609b6d0 100755
 --- a/ui/ncurses/nc-cui.c
 +++ b/ui/ncurses/nc-cui.c
-@@ -1225,8 +1225,14 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1275,8 +1275,14 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	m->scr.frame.ltitle = talloc_asprintf(m,
  		"Petitboot (" PACKAGE_VERSION ")");
  	m->scr.frame.rtitle = NULL;
@@ -22,10 +22,10 @@ index 5d8b0f1..e3e0949 100755
 +	/* disable multi-lanauags feature if tty is fbcon(VGA) */
 +	if( !is_fbcon() ){
 +		m->scr.frame.help = talloc_strdup(m,
-+			_("Enter=accept, e=edit, n=new, x=exit, l=language, h=help"));
++			_("Enter=accept, e=edit, n=new, x=exit, l=language, g=log, h=help"));
 +	}else{
 +		m->scr.frame.help = talloc_strdup(m,
-+			_("Enter=accept, e=edit, n=new, x=exit, h=help"));
++			_("Enter=accept, e=edit, n=new, x=exit, g=log, h=help"));
 +	}
  	m->scr.frame.status = talloc_strdup(m, _("Welcome to Petitboot"));
  
@@ -33,7 +33,7 @@ index 5d8b0f1..e3e0949 100755
 diff --git a/ui/ncurses/nc-menu.c b/ui/ncurses/nc-menu.c
 old mode 100644
 new mode 100755
-index 54d82ff..095ff26
+index a6c2b15..e794e50
 --- a/ui/ncurses/nc-menu.c
 +++ b/ui/ncurses/nc-menu.c
 @@ -374,6 +374,21 @@ static void pmenu_move_cursor(struct pmenu *menu, int req)
@@ -55,10 +55,10 @@ index 54d82ff..095ff26
 +}
 +
 +/**
-  * pmenu_process_key - Process a user keystroke.
+  * pmenu_main_hot_keys - Hot keys for the main boot menu
   */
- 
-@@ -440,7 +455,8 @@ static void pmenu_process_key(struct nc_scr *scr, int key)
+ int pmenu_main_hot_keys(struct pmenu *menu, struct pmenu_item *item, int c)
+@@ -389,7 +404,8 @@ int pmenu_main_hot_keys(struct pmenu *menu, struct pmenu_item *item, int c)
  		cui_show_config(cui_from_arg(scr->ui_ctx));
  		break;
  	case 'l':
