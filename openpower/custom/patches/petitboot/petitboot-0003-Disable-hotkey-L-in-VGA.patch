@@ -1,4 +1,4 @@
-From 6fd8879ae29bc7f3675d32aa759c71eeb9a50b60 Mon Sep 17 00:00:00 2001
+From b718167ed93f2810639bef178d96bde9fe4d9b6c Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 13:24:57 +0800
 Subject: [PATCH 3/5] Disable hotkey L in VGA
@@ -10,12 +10,12 @@ Subject: [PATCH 3/5] Disable hotkey L in VGA
  mode change 100644 => 100755 ui/ncurses/nc-menu.c
 
 diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
-index 2bd5feb..609b6d0 100755
+index 9d0e717..8bce37d 100755
 --- a/ui/ncurses/nc-cui.c
 +++ b/ui/ncurses/nc-cui.c
-@@ -1275,8 +1275,14 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1276,8 +1276,14 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	m->scr.frame.ltitle = talloc_asprintf(m,
- 		"Petitboot (" PACKAGE_VERSION ")");
+ 		"Petitboot");
  	m->scr.frame.rtitle = NULL;
 -	m->scr.frame.help = talloc_strdup(m,
 -		_("Enter=accept, e=edit, n=new, x=exit, l=language, g=log, h=help"));

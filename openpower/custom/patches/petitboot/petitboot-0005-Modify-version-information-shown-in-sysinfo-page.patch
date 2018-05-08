@@ -1,4 +1,4 @@
-From 73e4528479530f763c637eea1f86adeb1c7d86b7 Mon Sep 17 00:00:00 2001
+From b8ae6b52e84c984e9bb26c34242fe369de29d573 Mon Sep 17 00:00:00 2001
 From: Johnny Chang <johnny.cl.chang@foxconn.com>
 Date: Wed, 22 Jun 2016 20:28:09 +0800
 Subject: [PATCH 5/5] Modify version information shown in sysinfo page

@@ -1,4 +1,4 @@
-From ff70fa50e2f044e7e8fe9751f23e40a00341e259 Mon Sep 17 00:00:00 2001
+From 1b6efc926f190e1d6779dae95643958fc09244c4 Mon Sep 17 00:00:00 2001
 From: Terry Lin <deathscytheh28@hotmail.com>
 Date: Tue, 7 Mar 2017 12:54:00 +0800
 Subject: [PATCH 2/5] Disable multi-languages in VGA console
@@ -8,7 +8,6 @@ Subject: [PATCH 2/5] Disable multi-languages in VGA console
  ui/ncurses/nc-cui.c      | 55 +++++++++++++++++++++++++++++++++++-------------
  2 files changed, 40 insertions(+), 17 deletions(-)
  mode change 100644 => 100755 ui/ncurses/nc-cui-help.c
- mode change 100644 => 100755 ui/ncurses/nc-cui.c
 
 diff --git a/ui/ncurses/nc-cui-help.c b/ui/ncurses/nc-cui-help.c
 old mode 100644
@@ -26,12 +25,10 @@ index 7d97ba5..558690c
  \n\
  To find new or updated boot options on the system, select the 'Rescan devices' \
 diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
-old mode 100644
-new mode 100755
-index f9f8247..2bd5feb
+index 5148c49..9d0e717 100755
 --- a/ui/ncurses/nc-cui.c
 +++ b/ui/ncurses/nc-cui.c
-@@ -1227,6 +1227,21 @@ static int menu_plugin_execute(struct pmenu_item *item)
+@@ -1228,6 +1228,21 @@ static int menu_plugin_execute(struct pmenu_item *item)
  }
  
  /**
@@ -53,7 +50,7 @@ index f9f8247..2bd5feb
   * pb_mm_init - Setup the main menu instance.
   */
  static struct pmenu *main_menu_init(struct cui *cui)
-@@ -1235,8 +1250,13 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1236,8 +1251,13 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	struct pmenu *m;
  	int result;
  	bool lockdown = lockdown_active();
@@ -69,7 +66,7 @@ index f9f8247..2bd5feb
  	if (!m) {
  		pb_log("%s: failed\n", __func__);
  		return NULL;
-@@ -1262,44 +1282,49 @@ static struct pmenu *main_menu_init(struct cui *cui)
+@@ -1263,44 +1283,49 @@ static struct pmenu *main_menu_init(struct cui *cui)
  	/* add a separator */
  	i = pmenu_item_create(m, " ");
  	item_opts_off(i->nci, O_SELECTABLE);

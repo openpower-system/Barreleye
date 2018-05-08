@@ -1,0 +1,39 @@
+From 6f575cc85e17c5a7d2266c776c5b86972c89c915 Mon Sep 17 00:00:00 2001
+From: Johnny Chang <johnny.cl.chang@foxconn.com>
+Date: Tue, 8 May 2018 14:24:43 +0800
+Subject: [PATCH 1/5] Remove Petitboot version label
+
+---
+ ui/ncurses/nc-cui.c | 2 +-
+ version.sh          | 1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+ mode change 100644 => 100755 ui/ncurses/nc-cui.c
+
+diff --git a/ui/ncurses/nc-cui.c b/ui/ncurses/nc-cui.c
+old mode 100644
+new mode 100755
+index 20a9048..5148c49
+--- a/ui/ncurses/nc-cui.c
++++ b/ui/ncurses/nc-cui.c
+@@ -1254,7 +1254,7 @@ static struct pmenu *main_menu_init(struct cui *cui)
+ 	m->on_new = cui_item_new;
+ 
+ 	m->scr.frame.ltitle = talloc_asprintf(m,
+-		"Petitboot (" PACKAGE_VERSION ")");
++		"Petitboot");
+ 	m->scr.frame.rtitle = NULL;
+ 	m->scr.frame.help = talloc_strdup(m,
+ 		_("Enter=accept, e=edit, n=new, x=exit, l=language, g=log, h=help"));
+diff --git a/version.sh b/version.sh
+index bf91f70..dd1bcd6 100755
+--- a/version.sh
++++ b/version.sh
+@@ -42,5 +42,4 @@ else
+ 		version="$(date +dev.$datefmt)"
+ 	fi
+ fi
+-
+ echo $version
+-- 
+1.9.1
+
