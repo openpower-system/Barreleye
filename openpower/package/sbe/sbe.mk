@@ -4,11 +4,11 @@
 #
 ################################################################################
 
-SBE_VERSION ?= b6054b3ff39537c7fe2c2af7810df6d090ae11f7
-SBE_SITE ?= $(call github,open-power,sbe,$(SBE_VERSION))
+SBE_VERSION = $(call qstrip,$(BR2_SBE_VERSION))
+SBE_SITE = $(call github,open-power,sbe,$(SBE_VERSION))
 
 SBE_LICENSE = Apache-2.0
-SBE_DEPENDENCIES = host-ppe42-gcc
+SBE_DEPENDENCIES = host-ppe42-gcc hcode
 
 SBE_INSTALL_IMAGES = YES
 SBE_INSTALL_TARGET = NO
