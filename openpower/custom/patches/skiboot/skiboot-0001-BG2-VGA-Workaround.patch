@@ -1,0 +1,30 @@
+From ff9a3893c95ffaf92cd1ded6d16db222a22e1484 Mon Sep 17 00:00:00 2001
+From: Terry Lin <terry.hy.lin@fii-foxconn.com>
+Date: Thu, 3 May 2018 11:26:55 +0800
+Subject: [PATCH] BG2-VGA-Workaround
+
+---
+ phb4.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/hw/phb4.c b/hw/phb4.c
+index 50e1be1..49928e0 100644
+--- a/hw/phb4.c
++++ b/hw/phb4.c
+@@ -4595,6 +4595,13 @@ static void phb4_init_hw(struct phb4 *p, bool first_init)
+ 	out_be64(p->regs + PHB_PCIE_SCR, val);
+ 	PHBDBG(p, "New system config    : 0x%016llx\n",
+ 	       in_be64(p->regs + PHB_PCIE_SCR));
++        /* Init_4a - PCIE override to force detect lane-12 */
++        if (p->chip_id != 0 && p->index == 5) {
++        val = in_be64(p->regs + PHB_PCIE_DLP_CTL);
++        val |= PPC_BIT(9);
++        val |= PPC_BIT(47);
++        out_be64(p->regs + PHB_PCIE_DLP_CTL, val);
++        }
+ 
+ 	/* Init_5 - deassert CFG reset */
+ 	creset = in_be64(p->regs + PHB_PCIE_CRESET);
+-- 
+1.9.1
+
