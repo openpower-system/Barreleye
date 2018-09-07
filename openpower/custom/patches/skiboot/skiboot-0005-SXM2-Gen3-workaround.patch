@@ -1,0 +1,24 @@
+From 105262eab4d5ec73e76bcb9781d64942df2121d2 Mon Sep 17 00:00:00 2001
+From: Terry Lin <terry.hy.lin@fii-foxconn.com>
+Date: Wed, 23 May 2018 15:10:04 +0800
+Subject: [PATCH] SXM2 Gen3 workaround
+
+---
+ hw/phb4.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/hw/phb4.c b/hw/phb4.c
+index bcf3172..5e035a6 100644
+--- a/hw/phb4.c
++++ b/hw/phb4.c
+@@ -2508,6 +2508,7 @@ static bool phb4_adapter_in_whitelist(uint32_t vdid)
+ static struct pci_card_id lane_eq_disable[] = {
+ 	{ 0x10de, 0x17fd }, /* Nvidia GM200GL [Tesla M40] */
+ 	{ 0x10de, 0x1db4 }, /* Nvidia GV100 */
++        { 0x10de, 0x1db1 }, /* Nvidia SXM2 V100*/
+ };
+ 
+ static bool phb4_lane_eq_retry_whitelist(uint32_t vdid)
+-- 
+1.9.1
+

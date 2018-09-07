@@ -1,0 +1,34 @@
+From 6ab09173e45b1a758f5424af9b7ec8f805f835b9 Mon Sep 17 00:00:00 2001
+From: Terry Lin <terry.hy.lin@fii-foxconn.com>
+Date: Tue, 7 Aug 2018 08:57:53 +0800
+Subject: [PATCH] Enable 2666MHz for 1DPC
+
+---
+ zaius.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/zaius.xml b/zaius.xml
+index f784ff7..e4cad51 100644
+--- a/zaius.xml
++++ b/zaius.xml
+@@ -9301,7 +9301,7 @@
+ 	</attribute>
+ 	<attribute>
+ 		<id>MAX_ALLOWED_DIMM_FREQ</id>
+-		<default>2400,2400,2400,2133,2133</default>
++		<default>2666,2666,2400,2133,2133</default>
+ 	</attribute>
+ 	<attribute>
+ 		<id>MAX_CHIPLETS_PER_PROC</id>
+@@ -9663,7 +9663,7 @@
+ 	</attribute>
+ 	<attribute>
+ 		<id>MSS_MRW_SUPPORTED_FREQ</id>
+-		<default>0x74A,0x855,0x960,0</default>
++		<default>0x74A,0x855,0x960,0xA6A</default>
+ 	</attribute>
+ 	<attribute>
+ 		<id>MSS_MRW_TEMP_REFRESH_MODE</id>
+-- 
+1.9.1
+
