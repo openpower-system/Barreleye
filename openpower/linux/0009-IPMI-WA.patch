@@ -1,0 +1,44 @@
+From 197cb893b1ac81ac90c395aed451bb531113a64b Mon Sep 17 00:00:00 2001
+From: Terry Lin <terry.hy.lin@fii-foxconn.com>
+Date: Tue, 2 Oct 2018 11:43:37 +0800
+Subject: [PATCH] IPMI-WA
+
+---
+ drivers/char/ipmi/ipmi_msghandler.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+ mode change 100644 => 100755 drivers/char/ipmi/ipmi_msghandler.c
+
+diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
+old mode 100644
+new mode 100755
+index 3611489..945a40c
+--- a/drivers/char/ipmi/ipmi_msghandler.c
++++ b/drivers/char/ipmi/ipmi_msghandler.c
+@@ -3337,6 +3337,7 @@ int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+ {
+ 	int              i, j;
+ 	int              rv;
++	int              cnt;
+ 	ipmi_smi_t       intf;
+ 	ipmi_smi_t       tintf;
+ 	struct list_head *link;
+@@ -3436,9 +3437,16 @@ int ipmi_register_smi(const struct ipmi_smi_handlers *handlers,
+ 	if (rv)
+ 		goto out;
+ 
++	cnt = 0;
++	retry:
+ 	rv = __bmc_get_device_id(intf, NULL, &id, NULL, NULL, i);
+ 	if (rv) {
+ 		dev_err(si_dev, "Unable to get the device id: %d\n", rv);
++		cnt = cnt + 1;
++		if (cnt <= 3){
++			dev_err(si_dev, "Re-try command: %d\n", cnt);
++			goto retry;
++		}
+ 		goto out;
+ 	}
+ 
+-- 
+1.9.1
+
