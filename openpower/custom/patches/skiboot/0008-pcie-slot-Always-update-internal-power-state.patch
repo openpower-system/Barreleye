@@ -1,0 +1,38 @@
+From 2ee1371263c2eec990e843c40a53ab21775e0dfd Mon Sep 17 00:00:00 2001
+From: Oliver O'Halloran <oohall@gmail.com>
+Date: Fri, 8 Jun 2018 16:00:18 +1000
+Subject: [PATCH 08/13] pcie-slot: Always update internal power state
+
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+---
+ core/pcie-slot.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
+
+diff --git a/core/pcie-slot.c b/core/pcie-slot.c
+index 8623aa2..8db1342 100644
+--- a/core/pcie-slot.c
++++ b/core/pcie-slot.c
+@@ -207,16 +207,12 @@ static int64_t pcie_slot_set_power_state_ext(struct pci_slot *slot, uint8_t val,
+ 	if (slot->power_state == val)
+ 		return OPAL_SUCCESS;
+ 
+-	/* Update the power state and return immediately if the power
+-	 * control functionality isn't supported on the PCI slot.
+-	 */
+-	if (!(slot->slot_cap & PCICAP_EXP_SLOTCAP_PWCTRL)) {
+-		slot->power_state = val;
+-		return OPAL_SUCCESS;
+-	}
+-
+ 	slot->power_state = val;
+ 
++	/* No power control so there's nothing to do. */
++	if (!(slot->slot_cap & PCICAP_EXP_SLOTCAP_PWCTRL))
++		return OPAL_SUCCESS;
++
+ 	/*
+ 	 * To support platforms without presence detect we keep the slot power
+ 	 * supply active on suprise hotplug slots by no-op`ing the power-down
+-- 
+1.9.1
+

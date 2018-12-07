@@ -1,0 +1,26 @@
+From 98eb58936d6790d08a4548ea8fb229330497beeb Mon Sep 17 00:00:00 2001
+From: Oliver O'Halloran <oohall@gmail.com>
+Date: Wed, 13 Jun 2018 18:04:46 +1000
+Subject: [PATCH 13/13] HACK: print a backtrace on EEH
+
+---
+ hw/phb4.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/hw/phb4.c b/hw/phb4.c
+index 76529c7..621535b 100644
+--- a/hw/phb4.c
++++ b/hw/phb4.c
+@@ -2042,6 +2042,9 @@ static void phb4_eeh_dump_regs(struct phb4 *p)
+ 		PHBERR(p, "               PEST[%03d] = %016llx %016llx\n",
+ 		       i, s->pestA[i], s->pestB[i]);
+ 	}
++
++	backtrace();
++
+ 	free(s);
+ }
+ 
+-- 
+1.9.1
+

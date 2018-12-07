@@ -1,0 +1,43 @@
+From f2acf2793efeec7747720c1ddfa66ee83940ff01 Mon Sep 17 00:00:00 2001
+From: Oliver O'Halloran <oohall@gmail.com>
+Date: Thu, 7 Jun 2018 18:01:49 +1000
+Subject: [PATCH 03/13] pci: Document slot flags
+
+Signed-off-by: Oliver O'Halloran <oohall@gmail.com>
+---
+ include/pci-slot.h | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git a/include/pci-slot.h b/include/pci-slot.h
+index cd75753..f052afd 100644
+--- a/include/pci-slot.h
++++ b/include/pci-slot.h
+@@ -145,9 +145,25 @@ struct pci_slot_ops {
+ 
+ struct pci_slot {
+ 	uint32_t		flags;
++/*
++ * The boot up flag indicates that we're in initial boot. Important since some
++ * slot backends need to wait around for I2C requests, etc.
++ */
+ #define PCI_SLOT_FLAG_BOOTUP		0x1
++
++/*
++ * Indicates that the slot power is always on.
++ */
+ #define PCI_SLOT_FLAG_FORCE_POWERON	0x2
++
++/*
++ * Indicates that the presence-detect-change bit is invalid.
++ */
+ #define PCI_SLOT_FLAG_BROKEN_PDC	0x4
++
++/*
++ * Forces slot power control operations to occur.
++ */
+ #define PCI_SLOT_FLAG_ENFORCE		0x8
+ 
+ 	struct phb		*phb;
+-- 
+1.9.1
+

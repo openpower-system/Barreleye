@@ -1,0 +1,47 @@
+From f385ac321e0ba0d73c1bc2e865c9b599fddfc66e Mon Sep 17 00:00:00 2001
+From: Frederic Barrat <fbarrat@linux.ibm.com>
+Date: Wed, 25 Jul 2018 18:24:07 +0200
+Subject: [PATCH] npu2-opencapi: Don't send commands to NPU when link is down
+
+Even if an opencapi link is down, we currently always try to issue a
+config read operation when probing for PCI devices, because of the
+default scan map used for an opencapi PHB. The config operation fails,
+as expected, but it can also raise a FIR bit and trigger an HMI.
+
+For opencapi, there's no root device like for a "normal" PCI PHB, so
+there's no reason to do the config operation. To fix it, we keep the
+scan map blank by default, and only add a device once the link is
+trained.
+
+CC: stable # v6.1+
+Signed-off-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Reviewed-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
+Signed-off-by: Stewart Smith <stewart@linux.ibm.com>
+---
+ hw/npu2-opencapi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/hw/npu2-opencapi.c b/hw/npu2-opencapi.c
+index f82e656..57c2f2f 100644
+--- a/hw/npu2-opencapi.c
++++ b/hw/npu2-opencapi.c
+@@ -1109,6 +1109,7 @@ static int64_t npu2_opencapi_poll_link(struct pci_slot *slot)
+ 	case OCAPI_SLOT_LINK_TRAINED:
+ 		otl_enabletx(chip_id, dev->npu->xscom_base, dev);
+ 		pci_slot_set_state(slot, OCAPI_SLOT_NORMAL);
++		dev->phb_ocapi.scan_map = 1;
+ 		return OPAL_SUCCESS;
+ 
+ 	default:
+@@ -1629,7 +1630,7 @@ static void npu2_opencapi_setup_device(struct dt_node *dn_link, struct npu2 *n,
+ 	dev->phb_ocapi.dt_node = dn_phb;
+ 	dev->phb_ocapi.ops = &npu2_opencapi_ops;
+ 	dev->phb_ocapi.phb_type = phb_type_npu_v2_opencapi;
+-	dev->phb_ocapi.scan_map = 1;
++	dev->phb_ocapi.scan_map = 0;
+ 	dev->index = dt_prop_get_u32(dn_link, "ibm,npu-link-index");
+ 	dev->pl_xscom_base = dt_prop_get_u64(dn_link, "ibm,npu-phy");
+ 	dev->lane_mask = dt_prop_get_u32(dn_link, "ibm,npu-lane-mask");
+-- 
+1.9.1
+

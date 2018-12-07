@@ -1,0 +1,37 @@
+From adf885e429d2d5d05b26667bdb3a3b797ffddb38 Mon Sep 17 00:00:00 2001
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date: Wed, 15 Aug 2018 15:10:35 +1000
+Subject: [PATCH 4/4] phb4: Workaround PHB errata with CFG write UR/CA errors
+
+If the PHB encounters a UR or CA status on a CFG write, it will
+incorrectly freeze the wrong PE. Instead of using the PE# specified
+in the CONFIG_ADDRESS register, it will use the PE# of whatever
+MMIO occurred last.
+
+Work around this disabling freeze on such errors
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+---
+ hw/phb4.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/hw/phb4.c b/hw/phb4.c
+index 060bf4f..8313078 100644
+--- a/hw/phb4.c
++++ b/hw/phb4.c
+@@ -4499,7 +4499,11 @@ static void phb4_init_errors(struct phb4 *p)
+ 	out_be64(p->regs + 0x0d00,	0xffffffffffffffffull);
+ 	out_be64(p->regs + 0x0d08,	0x0000000000000000ull);
+ 	out_be64(p->regs + 0x0d18,	0xffffff0fffffffffull);
+-	out_be64(p->regs + 0x0d28,	0x0000400a00000000ull);
++
++	/* Errata: Clear bit 17, otherwise a CFG write UR/CA will incorrectly
++	 * freeze a "random" PE (whatever last PE did an MMIO)
++	 */
++	out_be64(p->regs + 0x0d28,	0x0000000a00000000ull);
+ 	out_be64(p->regs + 0x0d30,	0xdff7bd05f7ddfff0ull); /* XXX CAPI has diff. value */
+ 	out_be64(p->regs + 0x0d40,	0x0000000000000000ull);
+ 	out_be64(p->regs + 0x0d48,	0x0000000000000000ull);
+-- 
+1.9.1
+

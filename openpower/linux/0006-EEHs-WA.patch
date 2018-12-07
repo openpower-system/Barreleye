@@ -1,0 +1,25 @@
+From 268bb28fb69f37d4e7451c657324ec79afc1d11f Mon Sep 17 00:00:00 2001
+From: Johnny Chang <johnny.cl.chang@fii-foxconn.com>
+Date: Tue, 3 Jul 2018 09:21:06 +0800
+Subject: [PATCH] EEHs WA
+
+---
+ drivers/nvme/host/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index b6f43b7..ab5fe38 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -2468,7 +2468,7 @@ static unsigned long check_vendor_combination_bug(struct pci_dev *pdev)
+ 			return NVME_QUIRK_NO_APST;
+ 	}
+ 
+-	return 0;
++	return NVME_QUIRK_NO_APST;
+ }
+ 
+ static int nvme_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+-- 
+1.9.1
+

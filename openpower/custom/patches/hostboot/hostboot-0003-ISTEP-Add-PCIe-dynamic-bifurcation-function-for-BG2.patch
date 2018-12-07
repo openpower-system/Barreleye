@@ -1,0 +1,425 @@
+From fabc70094b6c2c06cb20a573419b32cb43f5002c Mon Sep 17 00:00:00 2001
+From: Mengze Liao <liaomz@cn.ibm.com>
+Date: Mon, 29 Jan 2018 15:48:08 +0800
+Subject: [PATCH] ISTEP: Add PCIe dynamic bifurcation function for barreleye G2
+
+---
+ src/usr/isteps/HBconfig                            |  11 +++
+ src/usr/isteps/istep10/host_proc_pcie_scominit.C   | 100 ++++++++-----------
+ src/usr/isteps/istep10/makefile                    |   4 +
+ src/usr/isteps/istep10/sensor_based_bifurcation.C  | 109 +++++++++++++++++++++
+ src/usr/targeting/common/Targets.pm                |  10 +-
+ src/usr/targeting/common/processMrw.pl             |  31 ++++--
+ .../common/xmltohb/attribute_types_hb.xml          |   4 +
+ .../common/xmltohb/hb_customized_attrs.xml         |   1 +
+ 8 files changed, 196 insertions(+), 74 deletions(-)
+ create mode 100644 src/usr/isteps/istep10/sensor_based_bifurcation.C
+
+diff --git a/src/usr/isteps/HBconfig b/src/usr/isteps/HBconfig
+index ce6573a2e..11d0a13e7 100644
+--- a/src/usr/isteps/HBconfig
++++ b/src/usr/isteps/HBconfig
+@@ -35,3 +35,14 @@ config PRINT_SYSTEM_INFO
+     defaults n
+     help
+         Enables code that prints out the HWAS information for each target found during discovery
++
++config DYNAMIC_BIFURCATION
++    default n
++    help
++        Enables code that detect PEC bifurcated config.
++
++config SENSOR_BASED_BIFURCATION
++    default n
++    depends on (DYNAMIC_BIFURCATION)
++    help
++        Enable bifurcation detection API to detect the bifurcation config is enable or not through BMC sensor
+diff --git a/src/usr/isteps/istep10/host_proc_pcie_scominit.C b/src/usr/isteps/istep10/host_proc_pcie_scominit.C
+index e1ffc0ac5..702cd1fc7 100644
+--- a/src/usr/isteps/istep10/host_proc_pcie_scominit.C
++++ b/src/usr/isteps/istep10/host_proc_pcie_scominit.C
+@@ -186,7 +186,6 @@ void _deconfigPhbsBasedOnPhbMask(
+ // _queryIopsToBifurcateAndPhbsToDisable
+ //******************************************************************************
+ 
+-#ifdef DYNAMIC_BIFURCATION
+ // Normally a x16 PCIE adapter is driven by one PHB in the processor.
+ // Some x16 adapters have two logically different devices integrated
+ // onto the same adapter, each acting as a x8 PCIE endpoint driven by
+@@ -198,9 +197,15 @@ void _deconfigPhbsBasedOnPhbMask(
+ // and implement the guts of the
+ // _queryIopsToBifurcateAndPhbsToDisable function.
+ 
++#if CONFIG_SENSOR_BASED_BIFURCATION
++extern errlHndl_t _queryIopsToBifurcateAndPhbsToDisable(
++    TARGETING::ConstTargetHandle_t const       i_pecTarget,
++    bool&                                      o_iopBifurcate,
++    TARGETING::ATTR_PROC_PCIE_PHB_ACTIVE_type& o_disabledPhbsMask);
++#elif CONFIG_DYNAMIC_BIFURCATION
+ errlHndl_t _queryIopsToBifurcateAndPhbsToDisable(
+     TARGETING::ConstTargetHandle_t const       i_pecTarget,
+-    BifurcatedIopsContainer&                   o_iopList,
++    bool&                                      o_iopBifurcate,
+     TARGETING::ATTR_PROC_PCIE_PHB_ACTIVE_type& o_disabledPhbsMask)
+ {
+     TRACDCOMP( ISTEPS_TRACE::g_trac_isteps_trace,
+@@ -209,7 +214,7 @@ errlHndl_t _queryIopsToBifurcateAndPhbsToDisable(
+             i_pecTarget->getAttr<TARGETING::ATTR_HUID>() : 0);
+ 
+     errlHndl_t pError = NULL;
+-    o_iopList.clear();
++    o_iopBifurcate = false;
+     o_disabledPhbsMask = 0;
+ 
+     do {
+@@ -544,13 +549,13 @@ errlHndl_t computeProcPcieConfigAttrs(TARGETING::Target * i_pProcChipTarget)
+             //On FSP based systems it has already been determined
+             if (!INITSERVICE::spBaseServicesEnabled())
+             {
+-#ifdef DYNAMIC_BIFURCATION
++#if CONFIG_DYNAMIC_BIFURCATION
+                 // Figure out which IOPs need bifurcation, and as a
+                 // result, which PHBs to disable
+-                BifurcatedIopsContainer iopList;
++                bool iopBifurcate = false;
+                 pError = _queryIopsToBifurcateAndPhbsToDisable(
+                                                                l_pec,
+-                                                               iopList,
++                                                               iopBifurcate,
+                                                                disabledPhbs);
+                 if(pError!=NULL)
+                 {
+@@ -576,34 +581,31 @@ errlHndl_t computeProcPcieConfigAttrs(TARGETING::Target * i_pProcChipTarget)
+                 memcpy(effectiveLaneMask,laneMaskNonBifurcated,
+                        sizeof(effectiveLaneMask));
+ 
+-#ifdef DYNAMIC_BIFURCATION
+-                TARGETING::ATTR_PEC_PCIE_LANE_MASK_BIFURCATED_type
+-                  laneMaskBifurcated = {0};
+-                assert(l_pec->tryGetAttr<
+-                       TARGETING::ATTR_PEC_PCIE_LANE_MASK_BIFURCATED>(
+-                       laneMaskBifurcated),"Failed to get "
+-                       "ATTR_PEC_PCIE_LANE_MASK_BIFURCATED attribute");
+-
+-                TARGETING::ATTR_PEC_PCIE_IOP_REVERSAL_BIFURCATED_type
+-                  laneReversalBifurcated = {0};
+-                assert(l_pec->tryGetAttr<
+-                       TARGETING::ATTR_PEC_PCIE_IOP_REVERSAL_BIFURCATED>(
+-                       laneReversalBifurcated),"Failed to get "
+-                       "ATTR_PEC_PCIE_IOP_REVERSAL_BIFURCATED attribute");
+-
+-                TARGETING::ATTR_PEC_PCIE_IOP_SWAP_BIFURCATED_type
+-                  bifurcatedSwap = {0};
+-                assert(l_pec->tryGetAttr<
+-                       TARGETING::ATTR_PEC_PCIE_IOP_SWAP_BIFURCATED>(
+-                       bifurcatedSwap),"Failed to get "
+-                       "ATTR_PEC_PCIE_IOP_SWAP_BIFURCATED attribute");
+-
++#if CONFIG_DYNAMIC_BIFURCATION
+                 // Apply any IOP bifurcation settings
+-                for(BifurcatedIopsContainer::const_iterator iopItr =
+-                    iopList.begin(); iopItr != iopList.end();
+-                    ++iopItr)
++                if (iopBifurcate)
+                 {
+-                    BifurcatedIopsContainer::const_reference iop = *iopItr;
++                    TARGETING::ATTR_PEC_PCIE_LANE_MASK_BIFURCATED_type
++                      laneMaskBifurcated = {0};
++                    assert(l_pec->tryGetAttr<
++                           TARGETING::ATTR_PEC_PCIE_LANE_MASK_BIFURCATED>(
++                           laneMaskBifurcated),"Failed to get "
++                           "ATTR_PEC_PCIE_LANE_MASK_BIFURCATED attribute");
++
++                    TARGETING::ATTR_PEC_PCIE_IOP_REVERSAL_BIFURCATED_type
++                      laneReversalBifurcated = {0};
++                    assert(l_pec->tryGetAttr<
++                           TARGETING::ATTR_PEC_PCIE_IOP_REVERSAL_BIFURCATED>(
++                           laneReversalBifurcated),"Failed to get "
++                           "ATTR_PEC_PCIE_IOP_REVERSAL_BIFURCATED attribute");
++
++                    TARGETING::ATTR_PEC_PCIE_IOP_SWAP_BIFURCATED_type
++                      bifurcatedSwap = 0;
++                    assert(l_pec->tryGetAttr<
++                           TARGETING::ATTR_PEC_PCIE_IOP_SWAP_BIFURCATED>(
++                           bifurcatedSwap),"Failed to get "
++                           "ATTR_PEC_PCIE_IOP_SWAP_BIFURCATED attribute");
++
+                     memcpy(
+                            &effectiveLaneReversal[0],
+                            &laneReversalBifurcated[0],
+@@ -614,36 +616,14 @@ errlHndl_t computeProcPcieConfigAttrs(TARGETING::Target * i_pProcChipTarget)
+                            &laneMaskBifurcated[0],
+                            sizeof(effectiveLaneMask)/1);
+ 
+-                    // For every lane group of a PEC we need to see if
+-                    // the lane swap bit has been set. If the lane is
+-                    // used, and the bit is not set we set the lane swap
+-                    // bit. Lane swap attribute is a single attribute per
+-                    // PEC, so once the lane swap is set for one lane
+-                    // group it will be set for the whole PEC.
+-                    for(size_t laneGroup=0;
+-                        laneGroup <
+-                          (sizeof(bifurcatedSwap)/sizeof(effectiveLaneSwap));
+-                        ++laneGroup)
+-                    {
+-                        // If lanes are used and swap not yet set, then set it
+-                        if((effectiveLaneMask[laneGroup]) &&
+-                           (!effectiveLaneSwap))
+-                        {
+-                            effectiveLaneSwap = bifurcatedSwap[laneGroup];
+-                            break;
+-                        }
+-                    }
+-                }
+-
+-                // TODO: Dynamic Bifurcation - For future partner development
+-                // Only set if dynamic bifurcation and we need to re-compute
+-                // the swap and reversal setting
+-                l_pec->setAttr<
+-                  TARGETING::ATTR_PEC_PCIE_IOP_SWAP>(effectiveLaneSwap);
++                    effectiveLaneSwap = bifurcatedSwap;
+ 
+-                l_pec->setAttr<
+-                  TARGETING::ATTR_PEC_PCIE_IOP_REVERSAL>(effectiveLaneReversal);
++                    l_pec->setAttr<
++                      TARGETING::ATTR_PROC_PCIE_IOP_SWAP>(effectiveLaneSwap);
+ 
++                    l_pec->setAttr<
++                      TARGETING::ATTR_PEC_PCIE_IOP_REVERSAL>(effectiveLaneReversal);
++                }
+ #endif
+ 
+                 l_pec->setAttr<
+diff --git a/src/usr/isteps/istep10/makefile b/src/usr/isteps/istep10/makefile
+index 6ea05a63e..9b1815fc3 100644
+--- a/src/usr/isteps/istep10/makefile
++++ b/src/usr/isteps/istep10/makefile
+@@ -59,6 +59,10 @@ OBJS += call_proc_chiplet_scominit.o
+ OBJS += call_proc_abus_scominit.o
+ OBJS += call_proc_obus_scominit.o
+ OBJS += call_proc_npu_scominit.o
++
++#Sensor Based Bifurcation implementation
++OBJS += $(if $(CONFIG_SENSOR_BASED_BIFURCATION),sensor_based_bifurcation.o)
++
+ OBJS += call_proc_pcie_scominit.o
+ OBJS += call_proc_scomoverride_chiplets.o
+ OBJS += call_proc_chiplet_enable_ridi.o
+diff --git a/src/usr/isteps/istep10/sensor_based_bifurcation.C b/src/usr/isteps/istep10/sensor_based_bifurcation.C
+new file mode 100644
+index 000000000..46bcb5702
+--- /dev/null
++++ b/src/usr/isteps/istep10/sensor_based_bifurcation.C
+@@ -0,0 +1,109 @@
++/* IBM_PROLOG_BEGIN_TAG                                                   */
++/* This is an automatically generated prolog.                             */
++/*                                                                        */
++/* $Source: src/usr/isteps/istep10/sensor_based_bifurcation.C $           */
++/*                                                                        */
++/* OpenPOWER HostBoot Project                                             */
++/*                                                                        */
++/* Contributors Listed Below - COPYRIGHT 2016,2017                        */
++/* [+] International Business Machines Corp.                              */
++/*                                                                        */
++/*                                                                        */
++/* Licensed under the Apache License, Version 2.0 (the "License");        */
++/* you may not use this file except in compliance with the License.       */
++/* You may obtain a copy of the License at                                */
++/*                                                                        */
++/*     http://www.apache.org/licenses/LICENSE-2.0                         */
++/*                                                                        */
++/* Unless required by applicable law or agreed to in writing, software    */
++/* distributed under the License is distributed on an "AS IS" BASIS,      */
++/* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or        */
++/* implied. See the License for the specific language governing           */
++/* permissions and limitations under the License.                         */
++/*                                                                        */
++/* IBM_PROLOG_END_TAG                                                     */
++/******************************************************************************/
++// Includes
++/******************************************************************************/
++#include <stdint.h>
++#include <fapi2/target.H>
++#include <targeting/targplatutil.H>
++#include "ipmi/ipmisensor.H"
++
++#include <trace/interface.H>
++#include <initservice/taskargs.H>
++#include <errl/errlentry.H>
++#include <isteps/hwpisteperror.H>
++#include <errl/errludtarget.H>
++#include <initservice/isteps_trace.H>
++#include <initservice/initserviceif.H>
++
++
++
++namespace   ISTEP_10
++{
++
++errlHndl_t _queryIopsToBifurcateAndPhbsToDisable(
++    TARGETING::ConstTargetHandle_t const       i_pecTarget,
++    bool&                                      o_iopBifurcate,
++    TARGETING::ATTR_PROC_PCIE_PHB_ACTIVE_type& o_disabledPhbsMask)
++{
++    TRACDCOMP( ISTEPS_TRACE::g_trac_isteps_trace,
++        ENTER_MRK "_queryIopsToBifurcateAndPhbsToDisable: PEC target "
++        "HUID = 0x%08X.", i_pecTarget ?
++            i_pecTarget->getAttr<TARGETING::ATTR_HUID>() : 0);
++
++    errlHndl_t pError = NULL;
++    o_iopBifurcate = false;
++    o_disabledPhbsMask = 0;
++
++    do {
++        TARGETING::ATTR_PEC_PCIE_LANE_MASK_BIFURCATED_type laneMaskBifurcated = {0};
++        assert(i_pecTarget->tryGetAttr<
++               TARGETING::ATTR_PEC_PCIE_LANE_MASK_BIFURCATED>(
++               laneMaskBifurcated),"Failed to get "
++               "ATTR_PEC_PCIE_LANE_MASK_BIFURCATED attribute");
++        if (laneMaskBifurcated[0] || laneMaskBifurcated[1] || laneMaskBifurcated[2]
++            || laneMaskBifurcated[3]) {
++            TARGETING::Target* sys = nullptr;
++            TARGETING::targetService().getTopLevelTarget(sys);
++            assert(sys != nullptr);
++            uint32_t sensorNum = TARGETING::UTIL::getSensorNumber(sys,
++                                                      TARGETING::SENSOR_NAME_BIFURCATED);
++
++            if (sensorNum != 0xFF)
++            {
++                SENSOR::getSensorReadingData bifurcatedData;
++                SENSOR::SensorBase bifurcatedSensor(TARGETING::SENSOR_NAME_BIFURCATED, sys);
++                pError = bifurcatedSensor.readSensorData(bifurcatedData);
++                if (NULL == pError) {
++                    if ((bifurcatedData.event_status & 0x02) == 0x02) {
++                        o_iopBifurcate = true;
++                    }
++                }
++                else
++                {
++                    errlCommit(pError, ISTEP_COMP_ID);
++                }
++            }
++        }
++    // Extension point to return bifurcated IOPs and PHBs to disable.
++    // Assuming no extensions are added, the function returns no IOPs to
++    // bifurcate and no PHBs to disable
++
++    // If implemented, this function should only return error on software code
++    // bug.  Any other condition should result in IOPs not being bifurcated and
++    // host taking care of that condition.
++
++    } while(0);
++
++    TRACDCOMP( ISTEPS_TRACE::g_trac_isteps_trace,
++        EXIT_MRK "_queryIopsToBifurcateAndPhbsToDisable: EID = 0x%08X, "
++        "PLID = 0x%08X, RC = 0x%08X.",
++        ERRL_GETEID_SAFE(pError),ERRL_GETPLID_SAFE(pError),
++        ERRL_GETRC_SAFE(pError));
++
++    return pError;
++}
++
++};
+diff --git a/src/usr/targeting/common/Targets.pm b/src/usr/targeting/common/Targets.pm
+index 5713610fc..d4cdebb46 100644
+--- a/src/usr/targeting/common/Targets.pm
++++ b/src/usr/targeting/common/Targets.pm
+@@ -1024,12 +1024,10 @@ sub iterateOverChiplets
+                              }
+                              else
+                              {
+-                                 # This is our "bug" scenerio. We have found a
+-                                 # connection, but that PHB element is already
+-                                 # filled in the array. We need to kill the
+-                                 # program.
+-                                 printf("Found a duplicate connection for PEC %s PHB %s.\n",$pec_num,$phb_num);
+-                                 die "Duplicate PHB bus connection found\n";
++                                 # The dynamic bifurcation feature will make duplicate connection
++                                 # for single PEC. So just post warning message for the possible
++                                 # error in other scenario.
++                                 printf("Warning: Found a duplicate connection for PEC %s PHB %s.\n",$pec_num,$phb_num);
+                              }
+                         }
+                     }
+diff --git a/src/usr/targeting/common/processMrw.pl b/src/usr/targeting/common/processMrw.pl
+index 0f28c8ff5..a6ecb541d 100755
+--- a/src/usr/targeting/common/processMrw.pl
++++ b/src/usr/targeting/common/processMrw.pl
+@@ -1939,13 +1939,23 @@ sub processPec
+                         $pec_iop_swap |= 1 << $bitshift;
+                     }
+ 
++                    my $pcie_bifurcated = "0";
++                    if ($targetObj->isBusAttributeDefined($phb_config_child, 0, "PCIE_BIFURCATED")) {
++                        $pcie_bifurcated = $targetObj->getBusAttribute
++                                ($phb_config_child, 0, "PCIE_BIFURCATED");
++                    }
+                     # Set the lane swap for the PEC. If we find more swaps as
+                     # we process the other PCI busses then we will overwrite
+                     # the overall swap value with the newly computed one.
+-                    $targetObj->setAttribute($target,
+-                        "PEC_PCIE_IOP_SWAP_NON_BIFURCATED", $pec_iop_swap);
+-                    $targetObj->setAttribute($target,
+-                        "PROC_PCIE_IOP_SWAP", $pec_iop_swap);
++                    if ($pcie_bifurcated eq "1") {
++                        $targetObj->setAttribute($target,
++                            "PEC_PCIE_IOP_SWAP_BIFURCATED", $pec_iop_swap);
++                    } else {
++                        $targetObj->setAttribute($target,
++                            "PEC_PCIE_IOP_SWAP_NON_BIFURCATED", $pec_iop_swap);
++                        $targetObj->setAttribute($target,
++                            "PROC_PCIE_IOP_SWAP", $pec_iop_swap);
++                    }
+ 
+                     $lane_mask[$lane_group][0] =
+                         $targetObj->getAttribute
+@@ -1955,10 +1965,15 @@ sub processPec
+                         $lane_mask[0][0], $lane_mask[1][0],
+                         $lane_mask[2][0], $lane_mask[3][0]);
+ 
+-                    $targetObj->setAttribute($target, "PROC_PCIE_LANE_MASK",
+-                        $lane_mask_attr);
+-                    $targetObj->setAttribute($target,
+-                        "PEC_PCIE_LANE_MASK_NON_BIFURCATED", $lane_mask_attr);
++                    if ($pcie_bifurcated eq "1") {
++                        $targetObj->setAttribute($target,
++                            "PEC_PCIE_LANE_MASK_BIFURCATED", $lane_mask_attr);
++                    } else {
++                        $targetObj->setAttribute($target, "PROC_PCIE_LANE_MASK",
++                            $lane_mask_attr);
++                        $targetObj->setAttribute($target,
++                            "PEC_PCIE_LANE_MASK_NON_BIFURCATED", $lane_mask_attr);
++                    }
+ 
+                     # Only compute the HDAT attributes if they are available
+                     # and have default values
+diff --git a/src/usr/targeting/common/xmltohb/attribute_types_hb.xml b/src/usr/targeting/common/xmltohb/attribute_types_hb.xml
+index 7d4b64e1c..ec1fe97ee 100755
+--- a/src/usr/targeting/common/xmltohb/attribute_types_hb.xml
++++ b/src/usr/targeting/common/xmltohb/attribute_types_hb.xml
+@@ -622,6 +622,10 @@
+         <name>TPM_REQUIRED</name>
+         <value>0xCC03</value>
+     </enumerator>
++    <enumerator>
++        <name>BIFURCATED</name>
++        <value>0xCD03</value>
++    </enumerator>
+ </enumerationType>
+ 
+ <attribute>
+diff --git a/src/usr/targeting/common/xmltohb/hb_customized_attrs.xml b/src/usr/targeting/common/xmltohb/hb_customized_attrs.xml
+index d393797e5..523267903 100644
+--- a/src/usr/targeting/common/xmltohb/hb_customized_attrs.xml
++++ b/src/usr/targeting/common/xmltohb/hb_customized_attrs.xml
+@@ -578,6 +578,7 @@
+ 
+     <attribute>
+           <id>ATTR_PROC_PCIE_IOP_SWAP</id>
++          <writeable/>
+           <no_export/>
+     </attribute>
+ 
+-- 
+2.15.2 (Apple Git-101.1)
+

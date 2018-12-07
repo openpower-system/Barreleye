@@ -1,0 +1,24 @@
+From 94016e33fc2721b3c8e344d0588c46040f57feda Mon Sep 17 00:00:00 2001
+From: Terry Lin <terry.hy.lin@fii-foxconn.com>
+Date: Wed, 8 Aug 2018 09:02:10 +0800
+Subject: [PATCH] Remove unnecessary initialization
+
+---
+ drivers/pci/hotplug/pnv_php.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/pci/hotplug/pnv_php.c b/drivers/pci/hotplug/pnv_php.c
+index d441006..793d0cb 100644
+--- a/drivers/pci/hotplug/pnv_php.c
++++ b/drivers/pci/hotplug/pnv_php.c
+@@ -589,7 +589,6 @@ static struct pnv_php_slot *pnv_php_alloc_slot(struct device_node *dn)
+ 	php_slot->pdev	                = bus->self;
+ 	php_slot->bus	                = bus;
+ 	php_slot->id	                = id;
+-	php_slot->power_state_check     = false;
+ 	php_slot->slot.ops              = &php_slot_ops;
+ 	php_slot->slot.info             = &php_slot->slot_info;
+ 	php_slot->slot.release          = pnv_php_release;
+-- 
+1.9.1
+

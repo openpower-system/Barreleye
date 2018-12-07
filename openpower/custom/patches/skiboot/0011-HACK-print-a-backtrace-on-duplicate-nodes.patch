@@ -1,0 +1,33 @@
+From 930ba98e12df94b4bc3c08e88c79b818ee16c29c Mon Sep 17 00:00:00 2001
+From: Oliver O'Halloran <oohall@gmail.com>
+Date: Fri, 8 Jun 2018 15:58:40 +1000
+Subject: [PATCH 11/13] HACK: print a backtrace() on duplicate nodes
+
+---
+ core/device.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/core/device.c b/core/device.c
+index 38dbdfc..3131e8f 100644
+--- a/core/device.c
++++ b/core/device.c
+@@ -98,7 +98,7 @@ int dt_cmp_subnodes(const struct dt_node *a, const struct dt_node *b)
+ 
+ 	return strcmp(a->name, b->name);
+ }
+-
++#include <stack.h>
+ bool dt_attach_root(struct dt_node *parent, struct dt_node *root)
+ {
+ 	struct dt_node *node;
+@@ -119,6 +119,7 @@ bool dt_attach_root(struct dt_node *parent, struct dt_node *root)
+ 		if (cmp == 0) {
+ 			prerror("DT: %s failed, duplicate %s\n",
+ 				__func__, root->name);
++			backtrace();
+ 			return false;
+ 		}
+ 
+-- 
+1.9.1
+
